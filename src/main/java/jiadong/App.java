@@ -1,17 +1,51 @@
 package jiadong;
 
 /**
- * Hello world!
- *
+ * 
+ * @author wangjiadong
+ *	The Main Entry, And the Context Handler Of the App.
+ *	
+ *	
  */
+
+
 public class App 
 {
+	/**
+	 * Port Listener Manager:
+	 * Handle All the Port Listeners.
+	 * Each Port Listener Will Monitor 1 Port.
+	 */
 	private PortListenerManager portListenerManager;
+	
+	/**
+	 * Logging Management.
+	 * Log is NOT directly sent into console.
+	 * It Maybe Directed Into logging files, according to the environment, and configuration.
+	 */
 	private LoggingManager loggingManager;
+	/**
+	 * Logging Directory.
+	 * TEMPORARY.
+	 */
 	public final String LoggingDir = "./log/";
+	/**
+	 * Exception Management.
+	 * Will Handle the exceptions.
+	 */
 	private ExceptionManager exceptionManager;
+	/**
+	 * Database Management.
+	 */
 	private DatabaseManager databaseManager;
-    public static void main(String[] args )
+   
+	/**
+	 * Main Function.
+	 * Main Entry Of the App.
+	 * @param args
+	 */
+	
+	public static void main(String[] args )
     {
     	App app = new App();
     	
@@ -24,6 +58,12 @@ public class App
     	
     	app.databaseManager = new DatabaseManager(app);
     }
+    
+    /**
+     * Setters And Getters
+     * 
+     * @param plm
+     */
     public void setPortListenerManager(PortListenerManager plm){
     	this.portListenerManager = plm;
     }
