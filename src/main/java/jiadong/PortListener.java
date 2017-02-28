@@ -1,18 +1,49 @@
 package jiadong;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Date;
 
 public abstract class PortListener {
-	private final Integer portNum;
-	private final String 	protocolName;
-	private final Date 	startDate;
-	private String 	comment;
-	private final PortListenerManager portListenerManager;
+	protected final Integer portNum;
+	protected final String 	protocolName;
+	protected final Date 	startDate;
+	protected String 	comment;
+	protected Socket 	client;
+	protected boolean 	keepListening = true;
+	protected final PortListenerManager portListenerManager;
+	protected ServerSocket server;
 	public PortListener(PortListenerManager plm, Integer portNum, String protocolName){
 		this.startDate =new Date();
 		this.portListenerManager = plm;
 		this.portNum = portNum;
 		this.protocolName = protocolName;
+	}
+	public void startListening(){
+		try {
+			server = new ServerSocket(this.portNum);
+		} catch (IOException e) {
+			this.portListenerManager.loggingManager.log(this, "Port Initialization Failed. "+ e);
+		}
+		
+		while(this.keepListening){
+			try {
+				Thread t = new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						
+					}
+					
+				});
+				client = server.accept();
+				this.portListenerManager.loggingManager.log(this, "Request Acceptance Succeeded.");
+			} catch (IOException e) {
+				this.portListenerManager.loggingManager.log(this, "Port Initialization Failed. "+ e);
+			}
+		}
 	}
 	public abstract void listenerDestructor();
 	public Integer getPortNum(){

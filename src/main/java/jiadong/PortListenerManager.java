@@ -13,7 +13,7 @@ public class PortListenerManager extends Manager{
 	}
 	public void initializePortListeners(){
 		this.loggingManager.log(this, "Initializing HTTP PortListener On Port 80.");
-		this.portListenerList.add(new HttpPortListener(this, 80, "HTTP"));
+		this.portListenerList.add(new HttpPortListener(this, 8080, "HTTP"));
 	}
 
 	@Override
