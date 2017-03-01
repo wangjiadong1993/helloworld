@@ -7,6 +7,7 @@ import java.util.Date;
 
 import jiadong.httpPort.ClientThread;
 import jiadong.managers.PortListenerManager;
+import java.util.ArrayList;
 
 public abstract class PortListener {
 	/**
@@ -24,7 +25,7 @@ public abstract class PortListener {
 
 	//A Boolean Variable/Flag
 	//The Listener will terminate once turned False;
-	protected boolean 	keepListening = true;
+	protected boolean 	keepListen = true;
 
 	
 	//Context & Manager
@@ -35,10 +36,10 @@ public abstract class PortListener {
 	protected ServerSocket server;
 	//Socket 
 	protected Socket 	client;
-
-	//Multi-Thread 
-	ClientThread  clientThread;
-	
+	//Listen Thread
+	private Thread listenThread;
+	//Client Thread
+	private ArrayList<ClientThread> clientThreadList;
 	
 	/**
 	 * Constructor
@@ -71,20 +72,20 @@ public abstract class PortListener {
 		}
 		this.portListenerManager.getLoggingManager().log(this, "Port Initialization Succeeded.");
 				
-		//started Server Socket.
-
-		while(this.keepListening){
-			try {
-				//Received A Client Socket.
-				client = server.accept();
-				//Passing This Client Socket To A New Thread.
-				clientThread = new ClientThread(client, this.portListenerManager.getAppContext(), this);
-				clientThread.start();
-				this.portListenerManager.getLoggingManager().log(this, "Request Acceptance Succeeded.");
-			} catch (IOException e) {
-				this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
-			}
-		}
+//		//started Server Socket.
+//
+//		while(this.keepListening){
+//			try {
+//				//Received A Client Socket.
+//				client = server.accept();
+//				//Passing This Client Socket To A New Thread.
+//				clientThread = new ClientThread(client, this.portListenerManager.getAppContext(), this);
+//				clientThread.start();
+//				this.portListenerManager.getLoggingManager().log(this, "Request Acceptance Succeeded.");
+//			} catch (IOException e) {
+//				this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
+//			}
+//		}
 	}
 	
 	/**

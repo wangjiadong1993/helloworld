@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import jiadong.App;
 import jiadong.managers.LoggingManager;
+import jiadong.portListeners.HttpPortListener;
 import jiadong.workers.PortListener;
 
 public class ClientThread extends Thread {
@@ -22,7 +23,7 @@ public class ClientThread extends Thread {
 	
 	//Context Handler
 	private App app;
-	private PortListener portListener;
+	private HttpPortListener portListener;
 	//Logging Manager Handler
 	private LoggingManager loggingManager;
 	
@@ -41,7 +42,7 @@ public class ClientThread extends Thread {
 	private ArrayList<String> requestMessage;
 	/*Constructor
 	 * */
-	public ClientThread(Socket client, App app, PortListener portListener){
+	public ClientThread(Socket client, App app, HttpPortListener portListener){
 		/**
 		 * Context SetUp
 		 */
@@ -120,17 +121,19 @@ public class ClientThread extends Thread {
 		}	
 		//get the length of the message from request header
 		int contentLength = 0;
-		String content = (requestMessage.get(3));
-		if(content.contains("Content-Length")){
-			Matcher m = Pattern.compile("\\d+$").matcher(content);
-			if(m.find()){
-				contentLength = Integer.parseInt(m.group(0));
-			}else{
-				;
-			}
-		}else{
-			;
-		}
+		Request r = new Request(requestMessage, "");
+		contentLength  = Integer.parseInt(r.contentLength);
+//		String content = (requestMessage.get(3));
+//		if(content.contains("Content-Length")){
+//			Matcher m = Pattern.compile("\\d+$").matcher(content);
+//			if(m.find()){
+//				contentLength = Integer.parseInt(m.group(0));
+//			}else{
+//				;
+//			}
+//		}else{
+//			;
+//		}
 		this.loggingManager.log(this, String.valueOf(contentLength));
 		/**
 		 * Read the message from the request
@@ -143,7 +146,7 @@ public class ClientThread extends Thread {
 		}
 		requestMessage.add(String.copyValueOf(msg));
 		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
-		//TODO
+		this.portListener.processRawRequest(this.requestMessage);
 		this.printWriter.print("");
 		
 		try {
