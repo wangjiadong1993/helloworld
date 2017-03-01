@@ -122,18 +122,11 @@ public class ClientThread extends Thread {
 		//get the length of the message from request header
 		int contentLength = 0;
 		Request r = new Request(requestMessage, "");
-		contentLength  = Integer.parseInt(r.contentLength);
-//		String content = (requestMessage.get(3));
-//		if(content.contains("Content-Length")){
-//			Matcher m = Pattern.compile("\\d+$").matcher(content);
-//			if(m.find()){
-//				contentLength = Integer.parseInt(m.group(0));
-//			}else{
-//				;
-//			}
-//		}else{
-//			;
-//		}
+		try{
+			contentLength  = Integer.parseInt(r.contentLength);
+		}catch(NumberFormatException e){
+			contentLength = 0;
+		}
 		this.loggingManager.log(this, String.valueOf(contentLength));
 		/**
 		 * Read the message from the request
@@ -144,29 +137,29 @@ public class ClientThread extends Thread {
 		} catch (IOException e) {
 			this.loggingManager.log(this, "Exception Encountered" + e);
 		}
-		requestMessage.add(String.copyValueOf(msg));
+//		requestMessage.add(String.copyValueOf(msg));
+		r.setMessageBody(String.copyValueOf(msg));
 		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
-		this.portListener.processRawRequest(this.requestMessage);
-		this.printWriter.print("");
-		
+		Response response = this.portListener.processRawRequest(r);
+		this.printWriter.print(response.toString());
 		try {
 			this.client.close();
+			this.loggingManager.log(this, "Client Socket Closed Successfully");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.loggingManager.log(this, "Error Encountered During Socket Closing : " + e);
 		}
 		try {
 			this.inputStreamReader.close();
+			this.loggingManager.log(this, "Input Stream Reader Closed Successfully");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.loggingManager.log(this, "Error Encountered During Input Stream Reader Closing : " + e);
 		}
 		this.printWriter.close();
 		try {
 			this.bufferedReader.close();
+			this.loggingManager.log(this, "Buffered Reader Closed Successfully");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			this.loggingManager.log(this, "Error Encountered During Buffered Reader Closing : " + e);
 		}
 	}
 }

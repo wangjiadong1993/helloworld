@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import jiadong.httpPort.ClientThread;
+import jiadong.httpPort.Request;
+import jiadong.httpPort.Response;
 import jiadong.managers.PortListenerManager;
 import jiadong.workers.PortListener;
 
@@ -13,6 +15,7 @@ public class HttpPortListener extends PortListener {
 	public HttpPortListener(PortListenerManager plm, Integer portNum,
 			String protocolName) {
 		super(plm, portNum, protocolName);
+		clientThreadList = new ArrayList<>();
 		keepListening();
 	}
 	
@@ -41,8 +44,8 @@ public class HttpPortListener extends PortListener {
 		});
 		listenThread.start();
 	}
-	public void processRawRequest(ArrayList<String> requestMessage){
-		
+	public Response processRawRequest(Request request){
+		return new Response();
 	}
 	private void processRequest(Request request){
 		
