@@ -1,5 +1,10 @@
 package jiadong;
 
+import jiadong.managers.DatabaseManager;
+import jiadong.managers.ExceptionManager;
+import jiadong.managers.LoggingManager;
+import jiadong.managers.PortListenerManager;
+
 /**
  * 
  * @author wangjiadong

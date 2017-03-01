@@ -1,9 +1,12 @@
-package jiadong;
+package jiadong.workers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+
+import jiadong.httpPort.ClientThread;
+import jiadong.managers.PortListenerManager;
 
 public abstract class PortListener {
 	/**
@@ -64,9 +67,9 @@ public abstract class PortListener {
 		try {
 			server = new ServerSocket(this.portNum);
 		} catch (IOException e) {
-			this.portListenerManager.loggingManager.log(this, "Port Initialization Failed. "+ e);
+			this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
 		}
-		this.portListenerManager.loggingManager.log(this, "Port Initialization Succeeded.");
+		this.portListenerManager.getLoggingManager().log(this, "Port Initialization Succeeded.");
 				
 		//started Server Socket.
 
@@ -75,11 +78,11 @@ public abstract class PortListener {
 				//Received A Client Socket.
 				client = server.accept();
 				//Passing This Client Socket To A New Thread.
-				clientThread = new ClientThread(client, this.portListenerManager.app);
+				clientThread = new ClientThread(client, this.portListenerManager.getAppContext(), this);
 				clientThread.start();
-				this.portListenerManager.loggingManager.log(this, "Request Acceptance Succeeded.");
+				this.portListenerManager.getLoggingManager().log(this, "Request Acceptance Succeeded.");
 			} catch (IOException e) {
-				this.portListenerManager.loggingManager.log(this, "Port Initialization Failed. "+ e);
+				this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
 			}
 		}
 	}

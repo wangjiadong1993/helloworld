@@ -1,4 +1,6 @@
-package jiadong;
+package jiadong.managers;
+
+import jiadong.App;
 
 public class LoggingManager extends Manager{
 	private String loggingPath;
@@ -25,5 +27,4 @@ public class LoggingManager extends Manager{
 		// TODO Auto-generated method stub
 		
 	}
-
 }

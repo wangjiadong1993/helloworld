@@ -1,4 +1,6 @@
-package jiadong;
+package jiadong.managers;
+
+import jiadong.App;
 
 public class ExceptionManager {
 
