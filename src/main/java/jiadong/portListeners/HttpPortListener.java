@@ -45,7 +45,9 @@ public class HttpPortListener extends PortListener {
 		listenThread.start();
 	}
 	public Response processRawRequest(Request request){
-		return new Response();
+		Response r = new Response(200);
+		r.mergeHeaders();
+		return r;
 	}
 	private void processRequest(Request request){
 		

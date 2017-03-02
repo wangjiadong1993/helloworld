@@ -141,7 +141,8 @@ public class ClientThread extends Thread {
 		r.setMessageBody(String.copyValueOf(msg));
 		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
 		Response response = this.portListener.processRawRequest(r);
-		this.printWriter.print(response.toString());
+		this.loggingManager.log(this, response.getResponse());
+		this.printWriter.print(response.getResponse());
 		try {
 			this.client.close();
 			this.loggingManager.log(this, "Client Socket Closed Successfully");

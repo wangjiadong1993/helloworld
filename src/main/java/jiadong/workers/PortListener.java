@@ -71,21 +71,6 @@ public abstract class PortListener {
 			this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
 		}
 		this.portListenerManager.getLoggingManager().log(this, "Port Initialization Succeeded.");
-				
-//		//started Server Socket.
-//
-//		while(this.keepListening){
-//			try {
-//				//Received A Client Socket.
-//				client = server.accept();
-//				//Passing This Client Socket To A New Thread.
-//				clientThread = new ClientThread(client, this.portListenerManager.getAppContext(), this);
-//				clientThread.start();
-//				this.portListenerManager.getLoggingManager().log(this, "Request Acceptance Succeeded.");
-//			} catch (IOException e) {
-//				this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
-//			}
-//		}
 	}
 	
 	/**
