@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import jiadong.managers.LoggingManager;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,8 +47,10 @@ public class RoutingWorker {
 		Matcher uriMatcher = Pattern.compile("^[\\d\\w\\-\\_\\.\\/]+").matcher(route);
 		uriMatcher.matches();
 		String uri = uriMatcher.group();
+		LoggingManager.getInstance().log(this, "The URI IS " + uri);
 		List<String> uriList = new ArrayList<String>();
 		uriList = Arrays.asList(uri.split("\\/")).stream().filter(str -> str.length() >= 1).collect(Collectors.toList());
+		LoggingManager.getInstance().log(this, "The URI Segments Are " + uriList.toString());
 		if(uriList.size() == 0){
 			return this.routingJson.getString("/"+method.toUpperCase());
 		}else{
@@ -61,16 +65,24 @@ public class RoutingWorker {
 					tmp_next = keyIterator.next();
 					if(tmp_next.startsWith("=")){
 						params.put(tmp_next.substring(1),tmp_str);
+						LoggingManager.getInstance().log(this, "The Matched JSON Object Is " + this.routingJson.getJSONObject(tmp_next));
 						return getRoute(method, uriList, this.routingJson.getJSONObject(tmp_next), params);
 					}
 				}
+				return null;
 			}
-			return null;
+			LoggingManager.getInstance().log(this, "The Matched JSON Object Without Param Is " + tmp);
+			return getRoute(method, uriList, tmp, params);
 		}
 	}
 	private String getRoute(String method, List<String> uriList, JSONObject partialJson, HashMap<String, String> params ){
+		LoggingManager.getInstance().log(this, "Sub Get Route Method: " + method);
+		LoggingManager.getInstance().log(this, "Sub Get Route URI List: " + uriList.toString());
+		LoggingManager.getInstance().log(this, "Sub Get Route Partial JSON: " + partialJson.toString());
 		if(uriList.size() == 0){
-			return this.routingJson.getString("/"+method.toUpperCase());
+			String output =  this.routingJson.getString("/"+method.toUpperCase());
+			LoggingManager.getInstance().log(this, "Sub Output: " + output);
+			return output;
 		}else{
 			String tmp_str = uriList.remove(0);
 			JSONObject tmp = this.routingJson.getJSONObject(tmp_str);

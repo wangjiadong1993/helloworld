@@ -3,6 +3,7 @@ package jiadong.portListeners;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import jiadong.http.mvc.ControllerManager;
 import jiadong.httpPort.ClientThread;
 import jiadong.httpPort.Request;
 import jiadong.httpPort.Response;
@@ -36,11 +37,10 @@ public class HttpPortListener extends PortListener {
 						clientThreadList.add(clientThread);
 						clientThread.start();
 						HttpPortListener.this.portListenerManager.getLoggingManager().log(this, "Request Acceptance Succeeded.");
-					} catch (IOException e) {
+					}catch (IOException e) {
 						HttpPortListener.this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
 					}
 				}
-				
 			}
 			
 		});
@@ -56,8 +56,15 @@ public class HttpPortListener extends PortListener {
 		RoutingWorker routingWorker = RoutingWorker.getInstance();
 		LoggingManager.getInstance().log(this, routingWorker.getRoutingJson().toString());
 		String routingResult = routingWorker.getRoute(request);
-		
-		return new Response(200);
+		if(routingResult == null){
+			return new Response(404);
+		}else{
+			String[] tmp = routingResult.split("#");
+			if(tmp.length < 2){
+				return new Response(404);
+			}
+			return ControllerManager.getInstance().callController(tmp[0], tmp[1]);
+		}
 	}
 	@Override
 	public void listenerDestructor() {

@@ -66,6 +66,11 @@ public class Response {
 		this.lastModified = ZonedDateTime.now(ZoneOffset.UTC);
 		extraHeaderFields = new HashMap<>();
 	}
+	
+	public Response(Integer code, String message, String messageType){
+		this(code);
+		this.setMessage(message, messageType);
+	}
 	public void setMessage(String msg, String msgType){
 		this.messageBody = msg;
 		this.contentType = msgType;
