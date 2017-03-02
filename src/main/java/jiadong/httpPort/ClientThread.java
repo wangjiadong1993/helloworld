@@ -111,6 +111,9 @@ public class ClientThread extends Thread {
 			/**
 			 * detect the end of the header
 			 */
+			if(str == null){
+				flag = false;
+			}
 			if(str.length() == 0){
 				flag = false;
 			}else{
@@ -137,12 +140,14 @@ public class ClientThread extends Thread {
 		} catch (IOException e) {
 			this.loggingManager.log(this, "Exception Encountered" + e);
 		}
-//		requestMessage.add(String.copyValueOf(msg));
 		r.setMessageBody(String.copyValueOf(msg));
 		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
 		Response response = this.portListener.processRawRequest(r);
-		this.loggingManager.log(this, response.getResponse());
+
 		this.printWriter.print(response.getResponse());
+		
+		this.printWriter.flush();
+		
 		try {
 			this.client.close();
 			this.loggingManager.log(this, "Client Socket Closed Successfully");
