@@ -11,12 +11,10 @@ import jiadong.managers.LoggingManager;
 
 public class ResourceWorker {
 	private static ResourceWorker resourceWorker;
-//	public static class ResourceWorkerBuilder{
-//		public ResourceWorkerBuilder(){
-//			if(resourceWorker == null) 
-//				resourceWorker = new ResourceWorker();
-//		}
-//	}
+	/**
+	 * Singleton Getter
+	 * @return
+	 */
 	public static ResourceWorker getInstance(){
 		if(resourceWorker == null){
 			resourceWorker = new ResourceWorker();
@@ -24,6 +22,11 @@ public class ResourceWorker {
 		return resourceWorker;
 	}
 	
+	/**
+	 * File Reader
+	 * @param path
+	 * @return
+	 */
 	public String readFile(String path){
 		FileReader fileReader;
 		BufferedReader bufferedReader;
@@ -43,5 +46,12 @@ public class ResourceWorker {
 			LoggingManager.getInstance().log(this, "IO Exception Ecncountered During File Reading. " + e);
 		}
 		return output;
+	}
+	
+	/**
+	 * Resource Getter for JS, images, CSS, and etc.
+	 */
+	public String readResource(Request request){
+		
 	}
 }

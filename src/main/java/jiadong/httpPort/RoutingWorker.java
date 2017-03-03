@@ -29,38 +29,73 @@ public class RoutingWorker {
 		}
 		
 	}
+	
 	public static RoutingWorker getInstance(){
 		if(routingWorker == null){
 			routingWorker = new RoutingWorker();
 		}
 		return routingWorker;
 	}
+	
+	public void urlResolver(String url){
+		Matcher m = Pattern.compile("^.*(\\:\\d)*([^\\?\\/]+)*(\\?([^&]+&)+){0,1}(#(.+)*){0,1}$").matcher(url);
+	}
+	
 	public JSONObject getRoutingJson(){
 		return this.routingJson;
 	}
 	public String getRoute(Request request){
-		String method = request.requestMethod;
-		String route = request.uri;
-		return getRoute(method, route);
+		if(request.accept.toLowerCase().contains("html")){
+			String method = request.requestMethod;
+			String route = request.uri;
+			return getRoute(method, route);
+		}else if(request.contentType.toLowerCase().contains("image")){
+			return null;
+		}else if(request.contentType.toLowerCase().contains("hahahha")){
+			return null;
+		}else{
+			return null;
+		}
+
 	}
 	String getRoute(String method, String route){
+		//getting the uri only, without the suffix params
 		Matcher uriMatcher = Pattern.compile("^[\\d\\w\\-\\_\\.\\/]+").matcher(route);
 		uriMatcher.matches();
 		String uri = uriMatcher.group();
 		LoggingManager.getInstance().log(this, "The URI IS " + uri);
+		//Translate uri into arraylist
 		List<String> uriList = new ArrayList<String>();
 		uriList = Arrays.asList(uri.split("\\/")).stream().filter(str -> str.length() >= 1).collect(Collectors.toList());
 		LoggingManager.getInstance().log(this, "The URI Segments Are " + uriList.toString());
+		
+		//if it is /, then simply route it. using /GET or /POST
 		if(uriList.size() == 0){
 			return this.routingJson.getString("/"+method.toUpperCase());
+		//otherwise
 		}else{
+			//the first segment of uri
 			String tmp_str = uriList.remove(0);
-			JSONObject tmp = this.routingJson.getJSONObject(tmp_str);
+			//the routing table
+			JSONObject tmp = null;
+			try{
+				//sub routing table or null
+				tmp = this.routingJson.getJSONObject(tmp_str);
+			}catch(JSONException e){
+				//empty json if key not found
+				tmp = null;
+			}
+			
+			//necessary variables;
 			Iterator<String> keyIterator;
 			String tmp_next;
 			HashMap<String, String>  params= new HashMap<String, String>();
+			
+			//if routing not found, it cannot 
+			//1. not routable
+			//2. param
 			if(tmp == null){
-				keyIterator = tmp.keys();
+				keyIterator = this.routingJson.keys();
 				while(keyIterator.hasNext()){
 					tmp_next = keyIterator.next();
 					if(tmp_next.startsWith("=")){
@@ -70,9 +105,9 @@ public class RoutingWorker {
 					}
 				}
 				return null;
+			}else{
+				return getRoute(method, uriList, tmp, params);
 			}
-			LoggingManager.getInstance().log(this, "The Matched JSON Object Without Param Is " + tmp);
-			return getRoute(method, uriList, tmp, params);
 		}
 	}
 	private String getRoute(String method, List<String> uriList, JSONObject partialJson, HashMap<String, String> params ){
@@ -80,25 +115,36 @@ public class RoutingWorker {
 		LoggingManager.getInstance().log(this, "Sub Get Route URI List: " + uriList.toString());
 		LoggingManager.getInstance().log(this, "Sub Get Route Partial JSON: " + partialJson.toString());
 		if(uriList.size() == 0){
-			String output =  this.routingJson.getString("/"+method.toUpperCase());
+			String output =  partialJson.getString("/"+method.toUpperCase());
 			LoggingManager.getInstance().log(this, "Sub Output: " + output);
 			return output;
 		}else{
 			String tmp_str = uriList.remove(0);
-			JSONObject tmp = this.routingJson.getJSONObject(tmp_str);
+			JSONObject tmp = null;
+			try{
+				//sub routing table or null
+				tmp = partialJson.getJSONObject(tmp_str);
+			}catch(JSONException e){
+				//empty json if key not found
+				tmp = null;
+			}
 			Iterator<String> keyIterator;
 			String tmp_next;
 			if(tmp == null){
-				keyIterator = tmp.keys();
+				keyIterator = partialJson.keys();
 				while(keyIterator.hasNext()){
 					tmp_next = keyIterator.next();
 					if(tmp_next.startsWith("=")){
 						params.put(tmp_next.substring(1),tmp_str);
-						return getRoute(method, uriList, this.routingJson.getJSONObject(tmp_next), params);
+						LoggingManager.getInstance().log(this, "= Match: " + tmp_next);
+						return getRoute(method, uriList, partialJson.getJSONObject(tmp_next), params);
 					}
 				}
+				return null;
+			}else{
+				return getRoute(method, uriList, tmp, params);
 			}
-			return null;
+			
 		}
 	}
 }

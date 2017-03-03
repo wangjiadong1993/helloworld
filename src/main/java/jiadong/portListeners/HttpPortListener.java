@@ -55,16 +55,30 @@ public class HttpPortListener extends PortListener {
 		//routing
 		RoutingWorker routingWorker = RoutingWorker.getInstance();
 		LoggingManager.getInstance().log(this, routingWorker.getRoutingJson().toString());
-		String routingResult = routingWorker.getRoute(request);
-		if(routingResult == null){
+		
+		//html & json
+		if(request.accept.toLowerCase().contains("html")){
+			String routingResult = routingWorker.getRoute(request);
+			if(routingResult == null){
+				return new Response(404);
+			}else{
+				String[] tmp = routingResult.split("#");
+				if(tmp.length < 2){
+					return new Response(404);
+				}
+				return ControllerManager.getInstance().callController(tmp[0], tmp[1]);
+			}
+		// resource
+		}else if(request.accept.toLowerCase().contains("image")){
+			return new Response(404);
+		}else if(request.accept.toLowerCase().contains("css")){
+			return new Response(404);
+		}else if(request.uri.toLowerCase().contains("css")){
 			return new Response(404);
 		}else{
-			String[] tmp = routingResult.split("#");
-			if(tmp.length < 2){
-				return new Response(404);
-			}
-			return ControllerManager.getInstance().callController(tmp[0], tmp[1]);
+			return new Response(404);
 		}
+		
 	}
 	@Override
 	public void listenerDestructor() {

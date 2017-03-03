@@ -1,6 +1,7 @@
 package jiadong.http.mvc;
 
 import jiadong.httpPort.ResourceWorker;
+import jiadong.managers.LoggingManager;
 
 public abstract class Controller {
 	private final String controllerDir = "/home/jiadong/Downloads_eclipse/JDServer/JDServer/src/main/java/jiadong/http/mvc/controllers/";
@@ -10,7 +11,8 @@ public abstract class Controller {
 	public String getPage(String pageName){
 		return ResourceWorker.getInstance().readFile(htmlDir + pageName);
 	}
-//	public Controller(String input){
-//		
-//	}
+	public Controller(){
+		super();
+		LoggingManager.getInstance().log(this, this.getClass().getName() + " Initialized."); 
+	}
 }
