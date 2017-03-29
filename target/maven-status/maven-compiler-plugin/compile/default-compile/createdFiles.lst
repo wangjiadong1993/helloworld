@@ -1,0 +1,8 @@
+jiadong/App.class
+jiadong/managers/DatabaseManager.class
+jiadong/managers/LoggingManager.class
+jiadong/managers/ExceptionManager.class
+jiadong/managers/PortListenerManager.class
+jiadong/workers/PortListener.class
+jiadong/workers/ClientThread.class
+jiadong/managers/Manager.class

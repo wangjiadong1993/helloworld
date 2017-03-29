@@ -71,10 +71,26 @@ public class App
     public PortListenerManager getPortListenerManager(){
     	return this.portListenerManager;
     }
+    
+    
     public void setLoggingManager(LoggingManager lm){
     	this.loggingManager = lm;
     }
     public LoggingManager getLoggingManager(){
     	return this.loggingManager;
+    }
+    
+    public void setDatabaseManager(DatabaseManager lm){
+    	this.databaseManager = lm;
+    }
+    public DatabaseManager getDatabaseManager(){
+    	return this.databaseManager;
+    }
+    
+    public void setExceptionManager(ExceptionManager lm){
+    	this.exceptionManager = lm;
+    }
+    public ExceptionManager getExceptionManager(){
+    	return this.exceptionManager;
     }
 }

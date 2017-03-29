@@ -30,7 +30,6 @@ public class PortListenerManager extends Manager{
 	 * Called From the Constructor, to Initialize the Port Listeners.
 	 */
 	public void initializePortListeners(){
-		this.loggingManager.log(this, "Initializing HTTP PortListener On Port 8080.");
 //		this.portListenerList.add(new HttpPortListener(this, 8080, "HTTP", this.app));
 	}
 	/**
