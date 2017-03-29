@@ -3,7 +3,6 @@ package jiadong.managers;
 import java.util.ArrayList;
 
 import jiadong.App;
-import jiadong.portListeners.HttpPortListener;
 import jiadong.workers.PortListener;
 /**
  * Initialized By the App's Main Entry.
@@ -32,7 +31,7 @@ public class PortListenerManager extends Manager{
 	 */
 	public void initializePortListeners(){
 		this.loggingManager.log(this, "Initializing HTTP PortListener On Port 8080.");
-		this.portListenerList.add(new HttpPortListener(this, 8080, "HTTP"));
+//		this.portListenerList.add(new HttpPortListener(this, 8080, "HTTP", this.app));
 	}
 	/**
 	 * Port Listener Destruction Management.

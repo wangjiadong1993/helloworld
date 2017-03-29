@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
-import jiadong.httpPort.ClientThread;
 import jiadong.managers.PortListenerManager;
 import java.util.ArrayList;
 

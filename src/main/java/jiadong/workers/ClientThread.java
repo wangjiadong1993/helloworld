@@ -1,4 +1,4 @@
-package jiadong.httpPort;
+package jiadong.workers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,14 +8,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import jiadong.App;
 import jiadong.managers.LoggingManager;
-import jiadong.portListeners.HttpPortListener;
-import jiadong.workers.PortListener;
-
 public class ClientThread extends Thread {
 
 	//Socket Handler
@@ -23,7 +18,7 @@ public class ClientThread extends Thread {
 	
 	//Context Handler
 	private App app;
-	private HttpPortListener portListener;
+
 	//Logging Manager Handler
 	private LoggingManager loggingManager;
 	
@@ -38,11 +33,12 @@ public class ClientThread extends Thread {
 	//Buffered Reader
 	private BufferedReader bufferedReader;
 	
+	private PortListener portListener;
 	//Request Message
 	private ArrayList<String> requestMessage;
 	/*Constructor
 	 * */
-	public ClientThread(Socket client, App app, HttpPortListener portListener){
+	public ClientThread(Socket client, App app, PortListener portListener){
 		/**
 		 * Context SetUp
 		 */
@@ -123,28 +119,28 @@ public class ClientThread extends Thread {
 			}
 		}	
 		//get the length of the message from request header
-		int contentLength = 0;
-		Request r = new Request(requestMessage, "");
-		try{
-			contentLength  = Integer.parseInt(r.contentLength);
-		}catch(NumberFormatException e){
-			contentLength = 0;
-		}
-		this.loggingManager.log(this, String.valueOf(contentLength));
-		/**
-		 * Read the message from the request
-		 */
-		char[] msg  = new char[contentLength];
-		try {
-			this.bufferedReader.read(msg, 0, contentLength);
-		} catch (IOException e) {
-			this.loggingManager.log(this, "Exception Encountered" + e);
-		}
-		r.setMessageBody(String.copyValueOf(msg));
-		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
-		Response response = this.portListener.processRawRequest(r);
+//		int contentLength = 0;
+//		Request r = new Request(requestMessage, "");
+//		try{
+//			contentLength  = Integer.parseInt(r.contentLength);
+//		}catch(NumberFormatException e){
+//			contentLength = 0;
+//		}
+//		this.loggingManager.log(this, String.valueOf(contentLength));
+//		/**
+//		 * Read the message from the request
+//		 */
+//		char[] msg  = new char[contentLength];
+//		try {
+//			this.bufferedReader.read(msg, 0, contentLength);
+//		} catch (IOException e) {
+//			this.loggingManager.log(this, "Exception Encountered" + e);
+//		}
+//		r.setMessageBody(String.copyValueOf(msg));
+//		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
+//		Response response = this.portListener.processRawRequest(r);
 
-		this.printWriter.print(response.getResponse());
+		this.printWriter.print((String) null);
 		
 		this.printWriter.flush();
 		
