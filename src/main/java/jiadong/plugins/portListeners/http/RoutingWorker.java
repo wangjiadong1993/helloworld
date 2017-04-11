@@ -62,7 +62,9 @@ public class RoutingWorker {
 		uriMatcher.matches();
 		String uri = uriMatcher.group();
 		LoggingManager.getInstance().log(this, "The URI IS " + uri);
-		
+		if (request.requestMethod == "GET"){
+			
+		}
 		if(uri.endsWith(".css")){
 			if(FileUtil.checkExist(CSS_DIR + uri)){
 				return new Response(200, FileUtil.readFile(CSS_DIR + uri), "text/stylesheet");

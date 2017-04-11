@@ -140,8 +140,6 @@ public class ClientThread extends Thread {
 		}else{
 			response = new Response(404);
 		}
-
-
 //		this.printWriter.print(response.getResponse());
 		try {
 			this.outputStream.write(response.getByte());
