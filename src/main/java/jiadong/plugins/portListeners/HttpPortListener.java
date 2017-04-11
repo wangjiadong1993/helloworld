@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 import jiadong.App;
 import jiadong.managers.*;
+import jiadong.plugins.portListeners.http.ClientThread;
 import jiadong.plugins.portListeners.http.Request;
 import jiadong.plugins.portListeners.http.ResourceWorker;
 import jiadong.plugins.portListeners.http.Response;
 import jiadong.plugins.portListeners.http.RoutingWorker;
 import jiadong.plugins.portListeners.http.mvc.ControllerManager;
-import jiadong.workers.ClientThread;
 import jiadong.workers.PortListener;
 
 public class HttpPortListener extends PortListener {
@@ -48,7 +48,12 @@ public class HttpPortListener extends PortListener {
 	}
 	public Response processRawRequest(Request request){
 		Response r = processRequest(request);
-		r.mergeHeaders();
+		try{
+			r.mergeHeaders();
+		}catch(NullPointerException e){
+			LoggingManager.getInstance().log(this, "Response Null.");
+			r = new Response(404);
+		}
 		return r;
 	}
 	private Response processRequest(Request request){
@@ -57,24 +62,16 @@ public class HttpPortListener extends PortListener {
 		LoggingManager.getInstance().log(this, routingWorker.getRoutingJson().toString());
 		
 		//html & json
-		if(request.accept.toLowerCase().contains("html")){
-			String routingResult = routingWorker.getRoute(request);
-			if(routingResult == null){
+		String routingResult = routingWorker.getRoute(request);
+		if(routingResult != null){
+			String[] tmp = routingResult.split("#");
+			if(tmp.length < 2){
 				return new Response(404);
-			}else{
-				String[] tmp = routingResult.split("#");
-				if(tmp.length < 2){
-					return new Response(404);
-				}
-				return ControllerManager.getInstance().callController(tmp[0], tmp[1]);
 			}
-		}else if(request.accept.toLowerCase().contains("css")){
-			return ResourceWorker.getInstance().readCSSResource(request);
-		}else if(request.uri.toLowerCase().contains("js")){
-			return ResourceWorker.getInstance().readJSResource(request);
-		}else{
-			return ResourceWorker.getInstance().readMediaResource(request);
+			LoggingManager.getInstance().log(this, "Assign to Controller:" + routingResult);
+			return ControllerManager.getInstance().callController(tmp[0], tmp[1]);
 		}
+		return routingWorker.getResourceRoute(request);
 	}
 	@Override
 	public void listenerDestructor() {

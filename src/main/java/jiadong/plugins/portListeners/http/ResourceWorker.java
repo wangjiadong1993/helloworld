@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Reader;
 
 import jiadong.managers.LoggingManager;
+import jiadong.utils.FileUtil;
 
 public class ResourceWorker {
 	private static ResourceWorker resourceWorker;
@@ -28,24 +29,7 @@ public class ResourceWorker {
 	 * @return
 	 */
 	public String readFile(String path){
-		FileReader fileReader;
-		BufferedReader bufferedReader;
-		String output = "";
-		try {
-			fileReader = new FileReader(new File(path));
-			bufferedReader = new BufferedReader(fileReader);
-			while(bufferedReader.ready()){
-				output += bufferedReader.readLine();
-				output += "\r\n";
-			}
-			fileReader.close();
-			bufferedReader.close();
-		} catch (FileNotFoundException e) {
-			LoggingManager.getInstance().log(this, "Resource File Not Found. " + e);
-		} catch (IOException e) {
-			LoggingManager.getInstance().log(this, "IO Exception Ecncountered During File Reading. " + e);
-		}
-		return output;
+		return FileUtil.readFile(path);
 	}
 	
 	/**

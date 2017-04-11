@@ -1,5 +1,6 @@
 package jiadong.plugins.portListeners.http;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +17,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static jiadong.managers.ResourceManager.ROUTINE_FILE;
-
+import static jiadong.managers.ResourceManager.CSS_DIR;
+import static jiadong.managers.ResourceManager.JAVASCRIPT_DIR;
+import static jiadong.managers.ResourceManager.IMG_DIR;
 public class RoutingWorker {
 	private static RoutingWorker routingWorker;
 	private static final String routingString = FileUtil.readFile(ROUTINE_FILE);
@@ -43,18 +46,48 @@ public class RoutingWorker {
 		return this.routingJson;
 	}
 	public String getRoute(Request request){
-		if(request.accept.toLowerCase().contains("html")){
-			String method = request.requestMethod;
-			String route = request.uri;
-			return getRoute(method, route);
-		}else if(request.contentType.toLowerCase().contains("image")){
-			return null;
-		}else if(request.contentType.toLowerCase().contains("hahahha")){
-			return null;
+		String method = request.requestMethod;
+		String route = request.uri;
+		String result = getRoute(method, route);
+		if(result != null){
+			return result;
 		}else{
 			return null;
 		}
+	}
 
+	public Response getResourceRoute(Request request) {
+		// getting the uri only, without the suffix params
+		Matcher uriMatcher = Pattern.compile("^[\\d\\w\\-\\_\\.\\/]+").matcher(request.uri);
+		uriMatcher.matches();
+		String uri = uriMatcher.group();
+		LoggingManager.getInstance().log(this, "The URI IS " + uri);
+		
+		if(uri.endsWith(".css")){
+			if(FileUtil.checkExist(CSS_DIR + uri)){
+				return new Response(200, FileUtil.readFile(CSS_DIR + uri), "text/stylesheet");
+			}else{
+				return new Response(404);
+			}
+		}else if(uri.endsWith(".js")){
+			if(FileUtil.checkExist(JAVASCRIPT_DIR + uri)){
+				return new Response(200, FileUtil.readFile(JAVASCRIPT_DIR + uri), "text/javascript");
+			}else{
+				return new Response(404);
+			}
+		}else{
+			if(FileUtil.checkExist(IMG_DIR + uri)){
+				byte[] tmp = null;
+				try {
+					tmp = FileUtil.readBinaryFile(IMG_DIR + uri);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return new Response(200, tmp, "*/*");
+			}else{
+				return new Response(404);
+			}
+		}
 	}
 	String getRoute(String method, String route){
 		//getting the uri only, without the suffix params

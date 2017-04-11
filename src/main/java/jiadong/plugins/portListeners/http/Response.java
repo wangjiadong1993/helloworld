@@ -2,6 +2,7 @@ package jiadong.plugins.portListeners.http;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -16,7 +17,7 @@ public class Response {
 	private String connection = "closed";
 	private HashMap<String, String> extraHeaderFields;
 	private String compoundHeader;
-	private String messageBody;
+	private byte[] messageBody;
 	
 	/**
 	 * 
@@ -69,14 +70,18 @@ public class Response {
 	
 	public Response(Integer code, String message, String messageType){
 		this(code);
+		this.setMessage(message.getBytes(), messageType);
+	}
+	public Response(Integer code, byte[] message, String messageType){
+		this(code);
 		this.setMessage(message, messageType);
 	}
-	public void setMessage(String msg, String msgType){
+	public void setMessage(byte[] msg, String msgType){
 		this.messageBody = msg;
 		this.contentType = msgType;
-		this.contentLength = msg.length();
+		this.contentLength = msg.length;
 	}
-	public String getMessage(){
+	public byte[] getMessage(){
 		return this.messageBody;
 	}
 	public void setConnection(String connection){
@@ -102,8 +107,24 @@ public class Response {
 			this.mergeHeaders();
 		}
 		if(this.messageBody == null){
-			this.setMessage("", "application/json");
+			this.setMessage("".getBytes(), "application/json");
 		}
 		return this.compoundHeader + this.messageBody;
+	}
+
+	public byte[] getByte() {
+		if(this.compoundHeader == null){
+			this.mergeHeaders();
+		}
+		if(this.messageBody == null){
+			this.setMessage("".getBytes(), "application/json");
+		}
+		byte[] a = this.compoundHeader.getBytes();
+		int aLen = a.length;
+		int bLen = this.messageBody.length;
+		byte[] c = new byte[aLen + bLen];
+		System.arraycopy(a, 0, c, 0, aLen);
+		System.arraycopy(this.messageBody, 0, c, aLen, bLen);
+		return c;
 	}
 }

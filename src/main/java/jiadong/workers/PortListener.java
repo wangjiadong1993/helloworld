@@ -8,6 +8,7 @@ import java.util.Date;
 import jiadong.App;
 import jiadong.managers.LoggingManager;
 import jiadong.managers.PortListenerManager;
+import jiadong.plugins.portListeners.http.ClientThread;
 
 import java.util.ArrayList;
 
