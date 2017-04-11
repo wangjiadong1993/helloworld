@@ -10,24 +10,23 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import jiadong.managers.LoggingManager;
+import jiadong.utils.FileUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static jiadong.managers.ResourceManager.ROUTINE_FILE;
 
 public class RoutingWorker {
-	private final String dir= "/home/jiadong/Develop/PersonalWork/JDServer/resources/json/routing.js";
 	private static RoutingWorker routingWorker;
-	private String routingString;
+	private static final String routingString = FileUtil.readFile(ROUTINE_FILE);
 	private JSONObject routingJson;
 	private RoutingWorker(){
-		this.routingString = ResourceWorker.getInstance().readFile(dir);
 		try{
-			routingJson = new JSONObject(this.routingString);
+			routingJson = new JSONObject(RoutingWorker.routingString);
 		}catch(JSONException e){
 			routingJson = null;
 		}
-		
 	}
 	
 	public static RoutingWorker getInstance(){
@@ -40,7 +39,6 @@ public class RoutingWorker {
 	public void urlResolver(String url){
 		Matcher m = Pattern.compile("^.*(\\:\\d)*([^\\?\\/]+)*(\\?([^&]+&)+){0,1}(#(.+)*){0,1}$").matcher(url);
 	}
-	
 	public JSONObject getRoutingJson(){
 		return this.routingJson;
 	}

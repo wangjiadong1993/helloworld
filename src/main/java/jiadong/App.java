@@ -1,5 +1,7 @@
 package jiadong;
 
+import java.lang.reflect.InvocationTargetException;
+
 import jiadong.managers.*;
 /**
  * 
@@ -50,14 +52,22 @@ public class App
     {
     	App app = new App();
     	
-    	app.loggingManager = new LoggingManager(app);
+    	app.loggingManager = LoggingManager.getInstance();
     	app.loggingManager.log(app, "Logging Manager Started.");
     	
     	app.loggingManager.log(app, "Initializing Port Listener Manger and Port Listeners.");
-    	app.portListenerManager = new PortListenerManager(app);
+    	app.portListenerManager = PortListenerManager.getInstance();
     	app.loggingManager.log(app, "Port Listener Manager Started.");
-    	
-    	app.databaseManager = new DatabaseManager(app);
+    	try {
+			app.portListenerManager.initializePortListeners();
+		} catch (ClassNotFoundException | NoSuchMethodException
+				| SecurityException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	app.databaseManager = DatabaseManager.getInstance();
     }
     
     /**

@@ -15,9 +15,6 @@ public class ClientThread extends Thread {
 
 	//Socket Handler
 	private Socket client; 
-	
-	//Context Handler
-	private App app;
 
 	//Logging Manager Handler
 	private LoggingManager loggingManager;
@@ -38,13 +35,12 @@ public class ClientThread extends Thread {
 	private ArrayList<String> requestMessage;
 	/*Constructor
 	 * */
-	public ClientThread(Socket client, App app, PortListener portListener){
+	public ClientThread(Socket client, PortListener portListener){
 		/**
 		 * Context SetUp
 		 */
 		this.client = client;
-		this.app = app;
-		this.loggingManager = app.getLoggingManager();
+		this.loggingManager = LoggingManager.getInstance();
 		this.portListener = portListener;
 		/**
 		 * Request Message Initialization
@@ -118,27 +114,6 @@ public class ClientThread extends Thread {
 				this.requestMessage.add(str);
 			}
 		}	
-		//get the length of the message from request header
-//		int contentLength = 0;
-//		Request r = new Request(requestMessage, "");
-//		try{
-//			contentLength  = Integer.parseInt(r.contentLength);
-//		}catch(NumberFormatException e){
-//			contentLength = 0;
-//		}
-//		this.loggingManager.log(this, String.valueOf(contentLength));
-//		/**
-//		 * Read the message from the request
-//		 */
-//		char[] msg  = new char[contentLength];
-//		try {
-//			this.bufferedReader.read(msg, 0, contentLength);
-//		} catch (IOException e) {
-//			this.loggingManager.log(this, "Exception Encountered" + e);
-//		}
-//		r.setMessageBody(String.copyValueOf(msg));
-//		this.loggingManager.log(this,"Result : " + String.copyValueOf(msg));
-//		Response response = this.portListener.processRawRequest(r);
 
 		this.printWriter.print((String) null);
 		

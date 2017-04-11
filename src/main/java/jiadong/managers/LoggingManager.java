@@ -1,34 +1,29 @@
 package jiadong.managers;
 
-import jiadong.App;
-
-public class LoggingManager extends Manager{
-	private String loggingPath;
-	private boolean console;
-	private boolean logging;
+public class LoggingManager{
+	private static String loggingPath;
+	private static boolean console;
+	private static boolean logging;
 	private static LoggingManager loggingManager;
 	
-	public LoggingManager(App app) {
-		super(app);
-		this.loggingPath = app.LoggingDir;
-		this.loggingManager = this;
-		managerConstructor();
+	private LoggingManager(){
 	}
 	public static LoggingManager getInstance(){
-		return loggingManager;
+		if(LoggingManager.loggingManager == null){
+			LoggingManager.loggingManager = new LoggingManager();
+		}
+		return LoggingManager.loggingManager;
 	}
-	@Override
 	public void managerDestructor() {
-		// TODO Auto-generated method stub
 		
 	}
 	
 	public void log(Object obj, String text){
-		System.out.println(obj.getClass().toString() + "	" + text);
-	}
-	@Override
-	public void managerConstructor() {
-		// TODO Auto-generated method stub
+		if(obj != null){
+			System.out.println(obj.getClass().toString() + "	" + text);
+		}else{
+			System.out.println(text);
+		}
 		
 	}
 }

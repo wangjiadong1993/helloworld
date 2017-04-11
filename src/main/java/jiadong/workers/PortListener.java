@@ -5,7 +5,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import jiadong.App;
+import jiadong.managers.LoggingManager;
 import jiadong.managers.PortListenerManager;
+
 import java.util.ArrayList;
 
 public abstract class PortListener {
@@ -46,15 +49,13 @@ public abstract class PortListener {
 	 * @param portNum
 	 * @param protocolName
 	 */
-	public PortListener(PortListenerManager plm, Integer portNum, String protocolName){
+	public PortListener(String portNum, String protocolName){
 		
 		//Initialization
 		this.startDate =new Date();
-		this.portListenerManager = plm;
-		this.portNum = portNum;
-		this.protocolName = protocolName;
-		
-		
+		this.portListenerManager =PortListenerManager.getInstance();
+		this.portNum = Integer.parseInt(portNum);
+		this.protocolName = protocolName;		
 		//Start Listening.
 		this.startListening();
 	}
@@ -67,9 +68,9 @@ public abstract class PortListener {
 		try {
 			server = new ServerSocket(this.portNum);
 		} catch (IOException e) {
-			this.portListenerManager.getLoggingManager().log(this, "Port Initialization Failed. "+ e);
+			LoggingManager.getInstance().log(this, "Port Initialization Failed. "+ e);
 		}
-		this.portListenerManager.getLoggingManager().log(this, "Port Initialization Succeeded.");
+		LoggingManager.getInstance().log(this, "Port Initialization Succeeded.");
 	}
 	
 	/**

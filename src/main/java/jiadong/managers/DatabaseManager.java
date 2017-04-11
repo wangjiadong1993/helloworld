@@ -1,24 +1,14 @@
 package jiadong.managers;
 
-import jiadong.App;
-
-public class DatabaseManager extends Manager {
-
-	public DatabaseManager(App app) {
-		super(app);
-		// TODO Auto-generated constructor stub
+public class DatabaseManager{
+	private static DatabaseManager databaseManager;
+	private DatabaseManager() {
 	}
 
-	@Override
-	public void managerDestructor() {
-		// TODO Auto-generated method stub
-		
+	public static DatabaseManager getInstance(){
+		if(DatabaseManager.databaseManager == null){
+			DatabaseManager.databaseManager = new DatabaseManager();
+		}
+		return DatabaseManager.databaseManager;
 	}
-
-	@Override
-	public void managerConstructor() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
