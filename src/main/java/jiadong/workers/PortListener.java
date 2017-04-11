@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
-
-import jiadong.App;
 import jiadong.managers.LoggingManager;
 import jiadong.managers.PortListenerManager;
 import jiadong.plugins.portListeners.http.ClientThread;

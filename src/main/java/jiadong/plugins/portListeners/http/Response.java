@@ -2,8 +2,6 @@ package jiadong.plugins.portListeners.http;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -18,7 +16,6 @@ public class Response {
 	private HashMap<String, String> extraHeaderFields;
 	private String compoundHeader;
 	private byte[] messageBody;
-	
 	/**
 	 * 
 	 * 

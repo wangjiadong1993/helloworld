@@ -1,13 +1,4 @@
 package jiadong.plugins.portListeners.http;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-
-import jiadong.managers.LoggingManager;
 import jiadong.utils.FileUtil;
 
 public class ResourceWorker {

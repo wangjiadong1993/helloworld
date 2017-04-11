@@ -39,9 +39,9 @@ public class RoutingWorker {
 		return routingWorker;
 	}
 	
-	public void urlResolver(String url){
-		Matcher m = Pattern.compile("^.*(\\:\\d)*([^\\?\\/]+)*(\\?([^&]+&)+){0,1}(#(.+)*){0,1}$").matcher(url);
-	}
+//	public void urlResolver(String url){
+//		Matcher m = Pattern.compile("^.*(\\:\\d)*([^\\?\\/]+)*(\\?([^&]+&)+){0,1}(#(.+)*){0,1}$").matcher(url);
+//	}
 	public JSONObject getRoutingJson(){
 		return this.routingJson;
 	}

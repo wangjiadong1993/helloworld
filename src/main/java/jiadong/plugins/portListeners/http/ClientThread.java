@@ -9,10 +9,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import jiadong.App;
 import jiadong.managers.LoggingManager;
 import jiadong.plugins.portListeners.HttpPortListener;
-import jiadong.workers.PortListener;
 public class ClientThread extends Thread {
 
 	//Socket Handler
@@ -35,8 +33,6 @@ public class ClientThread extends Thread {
 	private HttpPortListener httpPortListener;
 	//Request Message
 	private ArrayList<String> requestMessage;
-	//Message
-	private String message;
 	/*Constructor
 	 * */
 	public ClientThread(Socket client, HttpPortListener httpPortListener){
@@ -92,10 +88,6 @@ public class ClientThread extends Thread {
 		 */
 		boolean flag  = true;
 		/**
-		 * 
-		 */
-		boolean requestEnd = true;
-		/**
 		 * A while loop to receive request header
 		 */
 		while(flag){
@@ -112,7 +104,6 @@ public class ClientThread extends Thread {
 			 * detect the end of the header
 			 */
 			if(str == null){
-				requestEnd = false;
 				flag = false;
 				break;
 			}
@@ -120,31 +111,36 @@ public class ClientThread extends Thread {
 				flag = false;
 			}else{
 				//logging and push into request Message.
-				this.loggingManager.log(this, str);
 				this.requestMessage.add(str);
 			}
 		}	
-		//get the length of the message from request header
-		int contentLength = 0;
-		Request r = new Request(requestMessage, "");
-		try {
-			contentLength = Integer.parseInt(r.contentLength);
-		} catch (NumberFormatException e) {
-			contentLength = 0;
+		Response response;
+		if(requestMessage.size() != 0){
+			//get the length of the message from request header
+			int contentLength = 0;
+			Request r = new Request(requestMessage, "");
+			try {
+				contentLength = Integer.parseInt(r.contentLength);
+			} catch (NumberFormatException e) {
+				contentLength = 0;
+			}
+			this.loggingManager.log(this, String.valueOf(contentLength));
+			/**
+			 * Read the message from the request
+			 */
+			char[] msg = new char[contentLength];
+			try {
+				this.bufferedReader.read(msg, 0, contentLength);
+			} catch (IOException e) {
+				this.loggingManager.log(this, "Exception Encountered" + e);
+			}
+			r.setMessageBody(String.copyValueOf(msg));
+			this.loggingManager.log(this, "Result : " + String.copyValueOf(msg));
+			response = this.httpPortListener.processRawRequest(r);
+		}else{
+			response = new Response(404);
 		}
-		this.loggingManager.log(this, String.valueOf(contentLength));
-		/**
-		 * Read the message from the request
-		 */
-		char[] msg = new char[contentLength];
-		try {
-			this.bufferedReader.read(msg, 0, contentLength);
-		} catch (IOException e) {
-			this.loggingManager.log(this, "Exception Encountered" + e);
-		}
-		r.setMessageBody(String.copyValueOf(msg));
-		this.loggingManager.log(this, "Result : " + String.copyValueOf(msg));
-		Response response = this.httpPortListener.processRawRequest(r);
+
 
 //		this.printWriter.print(response.getResponse());
 		try {
