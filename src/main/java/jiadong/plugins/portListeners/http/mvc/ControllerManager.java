@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import jiadong.managers.LoggingManager;
+import jiadong.plugins.portListeners.http.Request;
 import jiadong.plugins.portListeners.http.Response;
 
 
@@ -17,12 +18,12 @@ public class ControllerManager {
 		}
 		return controllerManager;
 	}
-	public Response callController(String controllerName, String methodName){
+	public Response callController(String controllerName, String methodName, Request request){
 		Object object = null;
 		try {
 			Class<?> clazz = Class.forName(packageName + controllerName + "Controller");
-			Constructor<?> ctor = clazz.getConstructor();
-			object = ctor.newInstance(new Object[] {});
+			Constructor<?> ctor = clazz.getConstructor(Request.class);
+			object = ctor.newInstance(request);
 			Method m = clazz.getMethod(methodName);
 			return (Response) m.invoke(object);
 		} catch (ClassNotFoundException e) {

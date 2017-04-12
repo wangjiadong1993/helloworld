@@ -62,8 +62,8 @@ public class RoutingWorker {
 		uriMatcher.matches();
 		String uri = uriMatcher.group();
 		LoggingManager.getInstance().log(this, "The URI IS " + uri);
-		if (request.requestMethod == "GET"){
-			
+		if (request.requestMethod != "GET"){	// resources
+			return new Response(404);
 		}
 		if(uri.endsWith(".css")){
 			if(FileUtil.checkExist(CSS_DIR + uri)){
@@ -104,7 +104,11 @@ public class RoutingWorker {
 		
 		//if it is /, then simply route it. using /GET or /POST
 		if(uriList.size() == 0){
-			return this.routingJson.getString("/"+method.toUpperCase());
+			try{
+				return this.routingJson.getString("/"+method.toUpperCase());
+			}catch(JSONException e){
+				return null;
+			}
 		//otherwise
 		}else{
 			//the first segment of uri
@@ -148,8 +152,13 @@ public class RoutingWorker {
 		LoggingManager.getInstance().log(this, "Sub Get Route URI List: " + uriList.toString());
 		LoggingManager.getInstance().log(this, "Sub Get Route Partial JSON: " + partialJson.toString());
 		if(uriList.size() == 0){
-			String output =  partialJson.getString("/"+method.toUpperCase());
-			LoggingManager.getInstance().log(this, "Sub Output: " + output);
+			String output = null;
+			try{
+				output =  partialJson.getString("/"+method.toUpperCase());
+				LoggingManager.getInstance().log(this, "Sub Output: " + output);
+			}catch(JSONException e){
+				LoggingManager.getInstance().log(this, "Routing Not Found");
+			}
 			return output;
 		}else{
 			String tmp_str = uriList.remove(0);

@@ -14,6 +14,8 @@ public class Request {
 	 */
 	public final String requestMethod;
 	public final String uri;
+	public final String fragment;
+	public final HashMap<String, String> params;
 	public final String protocolType;
 	public final String protocolVersion;
 	/**
@@ -62,6 +64,47 @@ public class Request {
 		String[] headerLineOutput = requestLine.split("\\s+");
 		this.requestMethod= headerLineOutput[0];
 		this.uri = headerLineOutput[1];
+		
+		if(this.uri.contains("#")){
+			String tmp = null;
+			try{
+				tmp = this.uri.substring(this.uri.indexOf('#')+1);
+			}catch(IndexOutOfBoundsException e){
+				tmp = null;
+			}
+			this.fragment = tmp;
+		}else{
+			this.fragment = null;
+		}
+		if(this.uri.contains("?")){
+			String params = null;
+			if(this.uri.contains("#")){
+				try{
+					params = this.uri.substring(this.uri.indexOf('?')+1, this.uri.indexOf('#'));
+				}catch(IndexOutOfBoundsException e){
+					params = null;
+				}
+			}else{
+				try{
+					params = this.uri.substring(this.uri.indexOf('?')+1);
+				}catch(IndexOutOfBoundsException e){
+					params = null;
+				}
+			}
+			this.params = new HashMap<String, String>();
+			for(String param: params.split("&")){
+				String[] kav = param.split("=");
+				if(kav.length != 2){
+					continue;
+				}else{
+					this.params.put(kav[0], kav[1]);
+				}
+			}
+		}else{
+			this.params = null;
+		}
+		
+		
 		headerLineOutput = headerLineOutput[2].split("/");
 		this.protocolType= headerLineOutput[0];
 		this.protocolVersion = headerLineOutput[1];

@@ -67,7 +67,7 @@ public class HttpPortListener extends PortListener {
 				return new Response(404);
 			}
 			LoggingManager.getInstance().log(this, "Assign to Controller:" + routingResult);
-			return ControllerManager.getInstance().callController(tmp[0], tmp[1]);
+			return ControllerManager.getInstance().callController(tmp[0], tmp[1], request);
 		}
 		return routingWorker.getResourceRoute(request);
 	}
