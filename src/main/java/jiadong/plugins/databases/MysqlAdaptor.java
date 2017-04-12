@@ -8,10 +8,11 @@ import jiadong.workers.DatabaseAdaptor;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
-public class MysqlAdaptor implements DatabaseAdaptor{
+public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
+	public static final String Database_Identifier = "MySQL";
 	private Connection connection;
-	public static final String Adaptor_Identifier = "MySQL";
-	public MysqlAdaptor(){
+	public MysqlAdaptor(String path){
+		
 		MysqlDataSource datasource= new MysqlDataSource();
 		datasource.setDatabaseName("JDDrive");
 		datasource.setUser("root");

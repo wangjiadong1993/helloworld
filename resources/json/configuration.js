@@ -1,7 +1,7 @@
 {
 	"Plugins":{
 		"PortListeners":["HttpPortListener"],
-		"Databases": []
+		"Databases": ["MysqlAdaptor"]
 	},
 	"HttpPortListener":{
 		"Port": "8080",

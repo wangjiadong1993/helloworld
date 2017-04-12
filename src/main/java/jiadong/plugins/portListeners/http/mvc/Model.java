@@ -4,13 +4,14 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class Model<T extends Model<T>> implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -7147743627046243795L;
 	private String 	created;
 	private String 	modified;
 	private String 	deleted;
@@ -29,15 +30,25 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 	protected T update(long id, HashMap<String, Object> kav){
 		return null;
 	}
-	protected T[] select(){
+	protected T find(long id){
 		return null;
 	}
-	public String getSerializedModel(){
-//		Field[] fields =  this.getClass().getFields();
-//		
-//		for(Field field : fields){
-//			
-//		}
+	public ArrayList<MinimisedObject> getSerializedModel() throws IllegalArgumentException, IllegalAccessException{
+		Field[] fields =  this.getClass().getFields();
+		ArrayList<MinimisedObject> al = new ArrayList<>();
+		for(Field field : fields){
+			al.add(new MinimisedObject(field.getClass().toString(),field.get(this).toString(), field.getName()));
+		}
 		return null;
+	}
+	protected class MinimisedObject{
+		String _class;
+		String _value;
+		String _name;
+		MinimisedObject(String c, String v, String n){
+			_class = c;
+			_value = v;
+			_name = n;
+		}
 	}
 }
