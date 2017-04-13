@@ -1,15 +1,21 @@
 package jiadong.plugins.databases;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jiadong.managers.LoggingManager;
 import jiadong.utils.FileUtil;
 import jiadong.utils.JsonUtil;
-import jiadong.workers.DBResult;
 import jiadong.workers.DatabaseAdaptor;
 import jiadong.workers.MinimisedObject;
 
@@ -38,7 +44,7 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		}
 	}
 	@Override
-	public DBResult select(String statement) {
+	public List<List<MinimisedObject>> select(String statement) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -48,7 +54,7 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		
 	}
 	@Override
-	public DBResult update(String statement) {
+	public List<List<MinimisedObject>> update(String statement) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -74,22 +80,56 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		
 	}
 	@Override
-	public DBResult insert(ArrayList<MinimisedObject> statement) {
+	public List<List<MinimisedObject>> insert(ArrayList<MinimisedObject> statement) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
-	public DBResult find(MinimisedObject object, Class<?>  claz) {
+	public List<List<MinimisedObject>> find(MinimisedObject object, Class<?>  claz) {
+		List<MinimisedObject> al_mo;
+		List<List<MinimisedObject>> lt = new ArrayList<>();
+		Statement s;
 		try {
-			Statement s = connection.createStatement();
-			String q = "select * from "+claz.getSimpleName()+" where "+object._name.substring(1) +" = "+object._value +";";
-			LoggingManager.getInstance().log(this, "Query::"+ q);
-			ResultSet r = s.executeQuery(q);
-			return (DBResult)r;
+			s = connection.createStatement();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
-		return null;
+		String q = "select * from " + claz.getSimpleName() + " where "
+				+ object._name.substring(1) + " = " + object._value.toString() + ";";
+		LoggingManager.getInstance().log(this, "Query::" + q);
+		ResultSet r;
+		try {
+			r = s.executeQuery(q);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+
+		try {
+			while (r.next()) {
+				al_mo = new ArrayList<MinimisedObject>();
+				List<Field> al_f = Arrays.asList(claz.getFields()).stream()
+						.filter(field -> field.getName().startsWith("_"))
+						.collect(Collectors.toList());
+				for (Field f : al_f) {
+					LoggingManager.getInstance().log(this, "Function To Call : " + "get" + f.getClass().toString());
+					Method m = r.getClass().getMethod(
+							"get" + f.getClass().toString(), String.class);
+					Object o = m.invoke(r, f.getName());
+					al_mo.add(new MinimisedObject(f.getClass().toString(), o, f.getName()));
+				}
+				lt.add(al_mo);
+			}
+			return lt;
+		} catch (SecurityException | NoSuchMethodException
+				| IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

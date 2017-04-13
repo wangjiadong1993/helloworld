@@ -1,6 +1,5 @@
 package jiadong.plugins.portListeners.http.mvc.controllers;
 
-import jiadong.plugins.portListeners.http.Request;
 import jiadong.plugins.portListeners.http.Response;
 import jiadong.plugins.portListeners.http.mvc.Controller;
 import jiadong.plugins.portListeners.http.mvc.models.Person;
@@ -14,7 +13,7 @@ public class HelloWorldController extends Controller{
 		p._name = "jiadong";
 		try {
 			p.find(1L);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -24,7 +23,7 @@ public class HelloWorldController extends Controller{
 		return new Response(200,this.getPage("helloworld.html"), "text/html");
 	}
 	public Response tryPost(){
-		Request tmp = this.getRequest();
+//		Request tmp = this.getRequest();
 		return new Response(200,this.getPage("helloworld.html"), "text/html");
 	}
 }

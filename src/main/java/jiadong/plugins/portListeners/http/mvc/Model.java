@@ -1,19 +1,17 @@
 package jiadong.plugins.portListeners.http.mvc;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.sql.Connection;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import jiadong.managers.DatabaseManager;
 import jiadong.managers.LoggingManager;
-import jiadong.workers.DBResult;
 import jiadong.workers.DatabaseAdaptor;
 import jiadong.workers.MinimisedObject;
 
@@ -22,10 +20,10 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 	 * 
 	 */
 	public static final long serialVersionUID = -7147743627046243795L;
-	public final String 	_created;
-	public final String 	_modified;
-	public final String 	_deleted;
-	public 			Long 	_id;
+	public String 	_created;
+	public String 	_modified;
+	public String 	_deleted;
+	public 	Long 	_id;
 	private DatabaseAdaptor<?> adaptor = null;
 	protected Model() {
 		this._created  = ZonedDateTime.now(ZoneOffset.UTC).toString();
@@ -38,9 +36,34 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	public final T insert() throws IllegalArgumentException, IllegalAccessException{
-		DBResult result = adaptor.insert(this.getSerializedModel());
-		return getModel(result);
+	Model(List<MinimisedObject> al_o){
+		this();
+		List<Field> al_f = Arrays.asList(this.getClass().getFields()).stream()
+				.filter(field -> field.getName().startsWith("_"))
+				.collect(Collectors.toList());
+		for(Field f : al_f){
+			MinimisedObject mo = al_o.stream().filter(o -> "_" + o._name == f.getName()).findFirst().get();
+			try {
+				f.set(this, mo._value);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	public final List<T> insert(){
+//		DBResult result = adaptor.insert(this.getSerializedModel());
+//		try {
+//			return getModel(result);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return null;
+//		}
+		return null;
 	}
 	public final void delete(){
 		adaptor.delete(this._id);
@@ -48,11 +71,13 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 	public final T update(String key, Object value){
 		return null;
 	}
-	public final T find(Long id) throws IllegalArgumentException, IllegalAccessException{
+	public final List<T> find(Long id) throws Exception{
 		Field f = Arrays.asList(this.getClass().getFields()).stream()
 								.filter(field -> field.getName() == "_id")
 								.collect(Collectors.toList()).get(0);
-		DBResult result = adaptor.find(new MinimisedObject(f, this), this.getClass());
+		MinimisedObject mo = new MinimisedObject(f, this);
+		mo._value = id;
+		List<List<MinimisedObject>> result = adaptor.find(mo, this.getClass());
 		return getModel(result);
 	}
 	public ArrayList<MinimisedObject> getSerializedModel() throws IllegalArgumentException, IllegalAccessException{
@@ -66,7 +91,15 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		}
 		return al;
 	}
-	public T getModel(DBResult r) {
-		return null;
+	public List<T> getModel(List<List<MinimisedObject>> r) throws Exception {
+		List<T> lt = new ArrayList<T>();
+		for(List<MinimisedObject> l_mo : r){
+			Class<?> c  = this.getClass();
+			Constructor<?> con = c.getConstructor(l_mo.getClass());
+			@SuppressWarnings("unchecked")
+			T o = (T) con.newInstance(l_mo);
+			lt.add(o);
+		}
+		return lt;
 	}
 }
