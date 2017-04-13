@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import jiadong.managers.LoggingManager;
 import jiadong.utils.FileUtil;
 import jiadong.utils.JsonUtil;
 import jiadong.workers.DBResult;
@@ -81,8 +82,10 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 	public DBResult find(MinimisedObject object, Class<?>  claz) {
 		try {
 			Statement s = connection.createStatement();
-			ResultSet r = s.executeQuery("select * from "+claz.getSimpleName()+" where "+object._name +" = "+object._value +";");
-			
+			String q = "select * from "+claz.getSimpleName()+" where "+object._name.substring(1) +" = "+object._value +";";
+			LoggingManager.getInstance().log(this, "Query::"+ q);
+			ResultSet r = s.executeQuery(q);
+			return (DBResult)r;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
