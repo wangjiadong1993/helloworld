@@ -62,7 +62,7 @@ public class RoutingWorker {
 		uriMatcher.matches();
 		String uri = uriMatcher.group();
 		LoggingManager.getInstance().log(this, "The URI IS " + uri);
-		if (request.requestMethod != "GET"){	// resources
+		if (!request.requestMethod.equals("GET")){	// resources
 			return new Response(404);
 		}
 		if(uri.endsWith(".css")){

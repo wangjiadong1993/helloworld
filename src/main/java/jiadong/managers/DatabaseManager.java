@@ -3,13 +3,13 @@ package jiadong.managers;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import jiadong.utils.FileUtil;
 import jiadong.utils.JsonUtil;
 import jiadong.workers.DatabaseAdaptor;
+import static jiadong.managers.ResourceManager.DATABASE_PLUGIN_PACKAGE_NAME;
 
 public class DatabaseManager implements Serializable{
 
@@ -17,11 +17,17 @@ public class DatabaseManager implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -587791322653310007L;
-	private static HashMap<Long, DatabaseAdaptor<?>> databaseAdaptors;
+	private static DatabaseManager databaseManager;
+	private static HashMap<Long, DatabaseAdaptor<?>> databaseAdaptors = new HashMap<>();
 	private DatabaseManager() {
 	}
-
-	public static DatabaseAdaptor<?> getAdaptor(Long uid){
+	public static DatabaseManager getInstance(){
+		if(DatabaseManager.databaseManager == null){
+			DatabaseManager.databaseManager = new DatabaseManager();
+		}
+		return DatabaseManager.databaseManager;
+	}
+	public DatabaseAdaptor<?> getAdaptor(Long uid){
 		if(uid == null){
 			return null;
 		}
@@ -30,7 +36,7 @@ public class DatabaseManager implements Serializable{
 		}
 		return null;
 	}
-	public static DatabaseAdaptor<?> createAdaptor(Long uid, String path){
+	public DatabaseAdaptor<?> createAdaptor(Long uid, String path) throws NoSuchFieldException{
 		DatabaseAdaptor<?> da = getAdaptor(uid);
 		if(path == null){
 			return null;
@@ -39,16 +45,22 @@ public class DatabaseManager implements Serializable{
 		}else if(!FileUtil.checkExist(path)){
 			return null;
 		}else{
-			String db_name = JsonUtil.getString(JsonUtil.getJSON(FileUtil.readFile(path)), "DatabaseName");
+			String db_name = JsonUtil.getString(JsonUtil.getJSON(FileUtil.readFile(path)), "Type");
 			//claz loader
 			ArrayList<String> adaptors = JsonUtil.getStringFromArray(JsonUtil.getJSONArray(JsonUtil.getJSONObject(ResourceManager.CONFIGURATION_OBJECT, "Plugins"), "Databases"));
 			
 			for(String adaptor: adaptors){
 				try {
-					Class<?> tmp = Class.forName(adaptor);
-					Method method = tmp.getMethod("getIdentifier");
-					String name = (String) method.invoke(null);
-					if(name == db_name){
+					Class<?> tmp = Class.forName(DATABASE_PLUGIN_PACKAGE_NAME +"." + adaptor);
+					String name;
+					try {
+						name = (String) tmp.getField("Database_Identifier").get(null);
+					} catch (NoSuchFieldException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw e;
+					}
+					if(name.equals(db_name)){
 						Constructor<?> c = tmp.getConstructor(String.class);
 						da = (DatabaseAdaptor<?>) c.newInstance(path);
 						databaseAdaptors.put(uid, da);

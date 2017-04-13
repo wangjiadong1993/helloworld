@@ -22,10 +22,15 @@ public class ControllerManager {
 		Object object = null;
 		try {
 			Class<?> clazz = Class.forName(packageName + controllerName + "Controller");
-			Constructor<?> ctor = clazz.getConstructor(Request.class);
-			object = ctor.newInstance(request);
-			Method m = clazz.getMethod(methodName);
+			Constructor<?> ctor = clazz.getConstructor();
+			object = ctor.newInstance();
+			
+			Method m = clazz.getMethod("setRequest", Request.class);
+			m.invoke(object, request);
+			
+			m = clazz.getMethod(methodName);
 			return (Response) m.invoke(object);
+			
 		} catch (ClassNotFoundException e) {
 			LoggingManager.getInstance().log(this, "Class Not Found " + e);
 		} catch (NoSuchMethodException e) {

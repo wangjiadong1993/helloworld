@@ -128,12 +128,22 @@ public class Request {
 		this.accept = headerFields.get("Accept");
 		
 		//For some listed headers
-		for(String str : headerFields.get("Accept-Language").split(";")){
-			this.acceptLanguage.add(str);
+		try{
+			for(String str : headerFields.get("Accept-Language").split(";")){
+				this.acceptLanguage.add(str);
+			}
+		}catch(NullPointerException e){
+			;
 		}
-		for(String str : headerFields.get("Accept-Encoding").split(",\\s+")){
-			this.acceptEncoding.add(str);
+		
+		try{
+			for(String str : headerFields.get("Accept-Encoding").split(",\\s+")){
+				this.acceptEncoding.add(str);
+			}
+		}catch(NullPointerException e){
+			;
 		}
+		
 	}
 	/**
 	 * Another Constructor

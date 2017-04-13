@@ -50,7 +50,7 @@ public class PortListenerManager{
 		ArrayList<String> plugins = JsonUtil.getStringFromArray(JsonUtil.getJSONArray(JsonUtil.getJSONObject(ResourceManager.CONFIGURATION_OBJECT, "Plugins"), "PortListeners"));
 		for(String plugin : plugins){
 			LoggingManager.getInstance().log(null, "PortListenerManager:Initializing plugin: "+ plugin);
-			Class<?> clazz = Class.forName(ResourceManager.PLUGIN_PACKAGE_NAME+"." + plugin);
+			Class<?> clazz = Class.forName(ResourceManager.LISTENER_PLUGIN_PACKAGE_NAME+"." + plugin);
 			Constructor<?> ctor = clazz.getConstructor(String.class, String.class);
 			PortListenerManager.portListenerList.add((PortListener) ctor.newInstance(new Object[] {JsonUtil.getString(JsonUtil.getJSONObject(ResourceManager.CONFIGURATION_OBJECT, plugin), "Port"), JsonUtil.getString(JsonUtil.getJSONObject(ResourceManager.CONFIGURATION_OBJECT, plugin), "Protocol")}));
 		}
