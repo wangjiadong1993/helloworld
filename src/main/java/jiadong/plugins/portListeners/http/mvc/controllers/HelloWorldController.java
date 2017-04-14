@@ -13,13 +13,14 @@ public class HelloWorldController extends Controller{
 
 	public Response getIndex(){
 		Person p = new Person();
-		p._age = 18;
-		p._name = "jiadong";
+		p._age = 31;
+		p._name = "fake";
 		try {
 			List<Person> l_p = p.find("_age", 18L);
 			for(Person p_t : l_p){
 				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
 			}
+			p.insert();
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jiadong.managers.LoggingManager;
 import jiadong.utils.FileUtil;
@@ -76,8 +77,43 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		
 	}
 	@Override
-	public List<List<MinimisedObject>> insert(ArrayList<MinimisedObject> statement) {
-		// TODO Auto-generated method stub
+	public List<List<MinimisedObject>> insert(ArrayList<MinimisedObject> statements, Class<?> claz) {
+		List<MinimisedObject> l_mo = statements
+									.stream()
+									.filter(mo -> !mo._name.equals("_id"))
+									.collect(Collectors.toList());
+		ResultSet r = null;
+		String keys = "(";
+		String vals = "values(";
+		boolean tmp = true;
+		for(MinimisedObject mo : l_mo){
+			if(!tmp){
+				keys+=",";
+				vals+=",";
+			}else{
+				tmp = false;
+			}
+			keys += mo._name.substring(1);
+			if(mo._value == null){
+				vals += "NULL";
+			}else if(mo._class.equals("String")){
+				vals += ("\""+mo._value+"\"");
+			}else{
+				vals += mo._value.toString();
+			}
+		}
+		keys +=")";
+		vals += ")";
+		try {
+			Statement s = connection.createStatement();
+			
+			String q = "insert into "+claz.getSimpleName()+ " "+keys+" "+ vals +";";
+			LoggingManager.getInstance().log(this, "Query::"+ q);
+			s.executeUpdate(q);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			r = null;
+		}
 		return null;
 	}
 	@Override
@@ -137,7 +173,6 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		
 		return l_l_mo;
 	}
 }

@@ -10,7 +10,7 @@ public interface DatabaseAdaptor<T extends DatabaseAdaptor<T>>{
 	public List<List<MinimisedObject>> 	select(String statement);
 	public void 		delete(long id);
 	public List<List<MinimisedObject>> 	update(String statement);
-	public List<List<MinimisedObject>> 	insert(ArrayList<MinimisedObject> statement);
+	public List<List<MinimisedObject>> 	insert(ArrayList<MinimisedObject> statement, Class<?> claz);
 	public List<List<MinimisedObject>> 	find(MinimisedObject object, Class<?> claz, List<MinimisedObject> fields);
 	
 	public void 		create(String statement);

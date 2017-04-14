@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jiadong.managers.DatabaseManager;
-import jiadong.managers.LoggingManager;
 import jiadong.workers.DatabaseAdaptor;
 import jiadong.workers.MinimisedObject;
 import static jiadong.managers.ResourceManager.BASE_DIR;
@@ -37,8 +36,14 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	public final T[] insert() {
-		return null;
+	public final void insert() {
+		try {
+			adaptor.insert(this.getSerializedModel(), this.getClass());
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 	public final void delete(){
 		adaptor.delete(this._id);
@@ -75,7 +80,7 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 			al.add(new MinimisedObject(field, this));
 		}
 		return al;
-	}
+	}  
 	public List<T> getModel(List<List<MinimisedObject>> r) {
 		
 		List<T> tmp= new ArrayList<>();
