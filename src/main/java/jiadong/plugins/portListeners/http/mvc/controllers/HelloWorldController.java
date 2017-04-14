@@ -16,7 +16,7 @@ public class HelloWorldController extends Controller{
 		p._age = 18;
 		p._name = "jiadong";
 		try {
-			List<Person> l_p = p.find(1L);
+			List<Person> l_p = p.find("_age", 18L);
 			for(Person p_t : l_p){
 				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
 			}

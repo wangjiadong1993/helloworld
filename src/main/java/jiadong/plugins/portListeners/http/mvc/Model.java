@@ -56,13 +56,22 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		return getModel(result);
 	}
 	
+	public final List<T> find(String key, Object value) throws IllegalArgumentException, IllegalAccessException{
+		Field f = Arrays.asList(this.getClass().getFields()).stream()
+								.filter(field -> field.getName() == key)
+								.collect(Collectors.toList()).get(0);
+		MinimisedObject mo = new MinimisedObject(f, this);
+		mo._value = value;
+		List<List<MinimisedObject>> result = adaptor.find(mo, this.getClass(), getSerializedModel());
+		return getModel(result);
+	}	
+	
 	public ArrayList<MinimisedObject> getSerializedModel() throws IllegalArgumentException, IllegalAccessException{
 		List<Field> al_f = Arrays.asList(this.getClass().getFields()).stream()
 										.filter(field -> field.getName().startsWith("_"))
 										.collect(Collectors.toList());
 		ArrayList<MinimisedObject> al = new ArrayList<>();
 		for(Field field : al_f){
-			LoggingManager.getInstance().log(this, "The field is: "+ field.getName());
 			al.add(new MinimisedObject(field, this));
 		}
 		return al;
