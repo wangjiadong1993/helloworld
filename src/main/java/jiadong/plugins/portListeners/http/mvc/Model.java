@@ -2,12 +2,10 @@ package jiadong.plugins.portListeners.http.mvc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.Connection;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +14,7 @@ import jiadong.managers.LoggingManager;
 import jiadong.workers.DBResult;
 import jiadong.workers.DatabaseAdaptor;
 import jiadong.workers.MinimisedObject;
+import static jiadong.managers.ResourceManager.BASE_DIR;
 
 public abstract class Model<T extends Model<T>> implements Serializable {
 	/**
@@ -32,7 +31,7 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		this._modified = ZonedDateTime.now(ZoneOffset.UTC).toString();
 		this._deleted = null;
 		try {
-			adaptor = DatabaseManager.getInstance().createAdaptor(serialVersionUID, "/home/jiadong/Develop/PersonalWork/JDServer/resources/json/dbConfig.js");
+			adaptor = DatabaseManager.getInstance().createAdaptor(serialVersionUID, BASE_DIR + "resources/json/dbConfig.js");
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
