@@ -2,16 +2,16 @@ package jiadong.workers;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public interface DatabaseAdaptor<T extends DatabaseAdaptor<T>>{
 	public static final String Database_Identifier = "Dummy";
-	public DBResult 	select(String statement);
+	public List<List<MinimisedObject>> 	select(String statement);
 	public void 		delete(long id);
-	public DBResult 	update(String statement);
-	public DBResult 	insert(ArrayList<MinimisedObject> statement);
-	public DBResult 	find(MinimisedObject object, Class<?> claz);
-	
+	public List<List<MinimisedObject>> 	update(String statement);
+	public List<List<MinimisedObject>> 	insert(ArrayList<MinimisedObject> statement);
+	public List<List<MinimisedObject>> 	find(MinimisedObject object, Class<?> claz, List<MinimisedObject> fields);
 	
 	public void 		create(String statement);
 	public void 		alter(String statement);
