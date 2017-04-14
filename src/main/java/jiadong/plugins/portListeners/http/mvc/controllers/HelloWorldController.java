@@ -1,5 +1,8 @@
 package jiadong.plugins.portListeners.http.mvc.controllers;
 
+import java.util.List;
+
+import jiadong.managers.LoggingManager;
 import jiadong.plugins.portListeners.http.Request;
 import jiadong.plugins.portListeners.http.Response;
 import jiadong.plugins.portListeners.http.mvc.Controller;
@@ -13,9 +16,11 @@ public class HelloWorldController extends Controller{
 		p._age = 18;
 		p._name = "jiadong";
 		try {
-			p.find(1L);
+			List<Person> l_p = p.find(1L);
+			for(Person p_t : l_p){
+				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
+			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new Response(200,this.getPage("helloworld.html"), "text/html");

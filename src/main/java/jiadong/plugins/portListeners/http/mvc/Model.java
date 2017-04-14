@@ -34,34 +34,10 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		try {
 			adaptor = DatabaseManager.getInstance().createAdaptor(serialVersionUID, BASE_DIR + "resources/json/dbConfig.js");
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	protected Model(List<MinimisedObject> l_mo) {
-		this();
-		for(MinimisedObject mo : l_mo){
-			Class<?> c = this.getClass();
-			Field f = null;
-			try {
-				f = c.getField(mo._name);
-				f.set(this, mo._value);
-			} catch (NoSuchFieldException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public final T[] insert() throws IllegalArgumentException, IllegalAccessException{
-//		DBResult result = adaptor.insert(this.getSerializedModel());
-//		return getModel(result);
+	public final T[] insert() {
 		return null;
 	}
 	public final void delete(){
@@ -74,7 +50,9 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		Field f = Arrays.asList(this.getClass().getFields()).stream()
 								.filter(field -> field.getName() == "_id")
 								.collect(Collectors.toList()).get(0);
-		List<List<MinimisedObject>> result = adaptor.find(new MinimisedObject(f, this), this.getClass(), getSerializedModel());
+		MinimisedObject mo = new MinimisedObject(f, this);
+		mo._value = id;
+		List<List<MinimisedObject>> result = adaptor.find(mo, this.getClass(), getSerializedModel());
 		return getModel(result);
 	}
 	
@@ -92,33 +70,57 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 	public List<T> getModel(List<List<MinimisedObject>> r) {
 		
 		List<T> tmp= new ArrayList<>();
-		Constructor<?> c;
-		for(List<MinimisedObject> r_one : r){
+		Constructor<?> con;
+		for(List<MinimisedObject> l_mo : r){
 			try {
-				c = this.getClass().getConstructor(r_one.getClass());
+				con = this.getClass().getConstructor();
 				@SuppressWarnings("unchecked")
-				T o = (T) c.newInstance(r_one);
+				T o = (T) con.newInstance();
+				for(MinimisedObject mo : l_mo){
+					Class<?> c = o.getClass();
+					Field f = null;
+					try {
+						f = c.getField("_"+mo._name);
+						f.set(o, mo._value);
+					} catch (NoSuchFieldException | SecurityException e) {
+						e.printStackTrace();
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
 				tmp.add(o);
 			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}
 		}
+		return tmp;
+	}
+	@Override
+	public String toString(){
+		String tmp = " ";
+		List<MinimisedObject> l_mo;
+		try {
+			l_mo = getSerializedModel();
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+			return null;
+		} 
+		for(MinimisedObject mo : l_mo){
+			tmp += mo._name;
+			tmp += "::";
+			try{
+				tmp += mo._value.toString();
+			}catch(NullPointerException e){
+				tmp += "NULL";
+			}
+		}
+		tmp += " ";
 		return tmp;
 	}
 }

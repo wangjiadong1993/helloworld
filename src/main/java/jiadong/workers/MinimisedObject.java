@@ -14,12 +14,12 @@ public class MinimisedObject {
 		_name = n;
 	}
 	public MinimisedObject(Field field, Object obj) throws IllegalArgumentException, IllegalAccessException{
-		_class = field.getClass().toString();
+		_class = field.getType().getSimpleName();
 		_name = field.getName();
 		try{
 			LoggingManager.getInstance().log(this, field.get(obj).toString());
 		}catch(NullPointerException e){
-			LoggingManager.getInstance().log(this, "NULL");
+			LoggingManager.getInstance().log(this, field.getName() + "NULL");
 		}
 		Object val = null;
 		try{

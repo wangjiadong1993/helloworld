@@ -84,9 +84,20 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 	public List<List<MinimisedObject>> find(MinimisedObject object, Class<?>  claz, List<MinimisedObject> fields) {
 		ResultSet r = null;
 		List<List<MinimisedObject>> l_l_mo = new ArrayList<>();
+		String val_str = null;
+		if(object._class.equals("String")){
+			val_str = (String) object._value;
+		}else{
+			try{
+				val_str = object._value.toString();
+			}catch(NullPointerException e){
+				val_str = "NULL";
+			}
+		}
 		try {
 			Statement s = connection.createStatement();
-			String q = "select * from "+claz.getSimpleName()+" where "+object._name.substring(1) +" = "+object._value +";";
+			
+			String q = "select * from "+claz.getSimpleName()+" where "+object._name.substring(1) +" = "+val_str +";";
 			LoggingManager.getInstance().log(this, "Query::"+ q);
 			r = s.executeQuery(q);
 		} catch (SQLException e) {
@@ -100,8 +111,12 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 				l_mo = new ArrayList<>();
 				for(MinimisedObject mo : fields){
 					String type = mo._class;
+					String _type = type;
+					if(type.equals("Integer")){
+						_type = "Int";
+					}
 					String name = mo._name.substring(1);
-					Method m = r.getClass().getMethod("get"+type, String.class);
+					Method m = r.getClass().getMethod("get"+_type, String.class);
 					mo._value = m.invoke(r, name);
 					l_mo.add(new MinimisedObject(type, mo._value, name));
 				}
