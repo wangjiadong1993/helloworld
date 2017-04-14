@@ -46,9 +46,15 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		return null;
 	}
 	@Override
-	public void delete(long statement) {
-		// TODO Auto-generated method stub
-		
+	public void delete(long id, Class<?> claz) {
+		try {
+			Statement s = connection.createStatement();
+			String q = "delete from " + claz.getSimpleName() + " where id = " + id + ";";
+			LoggingManager.getInstance().log(this, "Query::" + q);
+			s.executeUpdate(q);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	@Override
 	public List<List<MinimisedObject>> update(String statement) {

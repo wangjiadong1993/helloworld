@@ -46,7 +46,12 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		}
 	}
 	public final void delete(){
-		adaptor.delete(this._id);
+		try{
+			adaptor.delete(this._id, this.getClass());
+		}catch(Exception e){
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	public final T update(String key, Object value){
 		return null;

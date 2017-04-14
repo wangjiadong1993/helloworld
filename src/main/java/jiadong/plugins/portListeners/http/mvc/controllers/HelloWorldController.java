@@ -21,6 +21,7 @@ public class HelloWorldController extends Controller{
 				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
 			}
 			p.insert();
+			p.delete();
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

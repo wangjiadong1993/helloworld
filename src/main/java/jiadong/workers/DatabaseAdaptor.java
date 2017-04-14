@@ -8,7 +8,7 @@ import java.util.List;
 public interface DatabaseAdaptor<T extends DatabaseAdaptor<T>>{
 	public static final String Database_Identifier = "Dummy";
 	public List<List<MinimisedObject>> 	select(String statement);
-	public void 		delete(long id);
+	public void 		delete(long id, Class<?> claz);
 	public List<List<MinimisedObject>> 	update(String statement);
 	public List<List<MinimisedObject>> 	insert(ArrayList<MinimisedObject> statement, Class<?> claz);
 	public List<List<MinimisedObject>> 	find(MinimisedObject object, Class<?> claz, List<MinimisedObject> fields);
