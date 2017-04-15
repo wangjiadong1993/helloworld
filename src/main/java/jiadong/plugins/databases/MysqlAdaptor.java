@@ -42,14 +42,21 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 	}
 	@Override
 	public List<List<MinimisedObject>> select(String statement) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 	@Override
-	public void delete(long id, Class<?> claz) {
+	public void delete(Long id, Class<?> claz) {
+		LoggingManager.getInstance().log(this, "Deleting...");
+		String id_str;
+		try{
+			id_str = id.toString();
+		}catch(NullPointerException e){
+			id_str = "NULL";
+		}
 		try {
 			Statement s = connection.createStatement();
-			String q = "delete from " + claz.getSimpleName() + " where id = " + id + ";";
+			String q = "delete from " + claz.getSimpleName() + " where id = " + id_str + ";";
 			LoggingManager.getInstance().log(this, "Query::" + q);
 			s.executeUpdate(q);
 		} catch (SQLException e) {
@@ -57,8 +64,24 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		}
 	}
 	@Override
-	public List<List<MinimisedObject>> update(String statement) {
-		// TODO Auto-generated method stub
+	public List<List<MinimisedObject>> update(Long id,MinimisedObject mo, Class<?> claz) {
+		String val = null;
+		if(mo._value == null){
+			val = "NULL";
+		}else if(mo._class.equals("String")){
+			val = ("\""+mo._value+"\"");
+		}else{
+			val = mo._value.toString();
+		}
+		try {
+			Statement s = connection.createStatement();
+			
+			String q = "update "+claz.getSimpleName()+ " set "+mo._name.substring(1)+"="+ val +" where id="+id.toString()+";";
+			LoggingManager.getInstance().log(this, "Query::"+ q);
+			s.executeUpdate(q);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	@Override
@@ -128,7 +151,7 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		List<List<MinimisedObject>> l_l_mo = new ArrayList<>();
 		String val_str = null;
 		if(object._class.equals("String")){
-			val_str = (String) object._value;
+			val_str ="\"" + (String) object._value + "\"";
 		}else{
 			try{
 				val_str = object._value.toString();

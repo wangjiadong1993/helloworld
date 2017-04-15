@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jiadong.managers.DatabaseManager;
+import jiadong.managers.LoggingManager;
 import jiadong.workers.DatabaseAdaptor;
 import jiadong.workers.MinimisedObject;
 import static jiadong.managers.ResourceManager.BASE_DIR;
@@ -47,14 +48,34 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 	}
 	public final void delete(){
 		try{
+			LoggingManager.getInstance().log(this, adaptor.toString());
 			adaptor.delete(this._id, this.getClass());
 		}catch(Exception e){
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	public final T update(String key, Object value){
-		return null;
+	public final List<T> update(String key, Object value) throws IllegalArgumentException, IllegalAccessException{
+		List<T> l_t = this.find(this._id);
+		if(l_t == null){
+			return null;
+		}else if(l_t.size() == 0){
+			return null;
+		}else{
+			T t = l_t.get(0);
+			ArrayList<MinimisedObject> l_mo = t.getSerializedModel();
+			List<MinimisedObject> l_mo_new = l_mo.stream().filter(mo -> mo._name == key).collect(Collectors.toList());
+			if(l_mo_new == null){
+				return null;
+			}else if(l_mo_new.size() == 0){
+				return null;
+			}else{
+				l_mo_new.get(0)._value = value;
+				List<List<MinimisedObject>> tmp = adaptor.update(this._id, l_mo_new.get(0), this.getClass()); 
+				return getModel(tmp);
+			}
+		}
+		
 	}
 	public final List<T> find(Long id) throws IllegalArgumentException, IllegalAccessException{
 		Field f = Arrays.asList(this.getClass().getFields()).stream()
@@ -87,7 +108,7 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 		return al;
 	}  
 	public List<T> getModel(List<List<MinimisedObject>> r) {
-		
+		if(r == null ) return null;
 		List<T> tmp= new ArrayList<>();
 		Constructor<?> con;
 		for(List<MinimisedObject> l_mo : r){

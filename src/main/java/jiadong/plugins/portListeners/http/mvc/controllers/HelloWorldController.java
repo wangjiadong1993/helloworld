@@ -16,12 +16,12 @@ public class HelloWorldController extends Controller{
 		p._age = 31;
 		p._name = "fake";
 		try {
-			List<Person> l_p = p.find("_age", 18L);
+			List<Person> l_p = p.find("_name", "fake");
 			for(Person p_t : l_p){
 				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
 			}
-			p.insert();
-			p.delete();
+//			p.insert();
+			l_p.get(0).update("_name", "fake_new");
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
