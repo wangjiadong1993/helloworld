@@ -1,9 +1,6 @@
 package jiadong.workers;
 
 import java.lang.reflect.Field;
-
-import jiadong.managers.LoggingManager;
-
 public class MinimisedObject {
 	public String _class;
 	public Object _value;

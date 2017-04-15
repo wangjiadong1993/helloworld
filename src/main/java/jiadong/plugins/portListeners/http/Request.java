@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.json.*;
 public class Request {
 	public final String headerStr;
 	private String messageStr;
@@ -36,7 +35,7 @@ public class Request {
 	/**
 	 * Json Message
 	 */
-	private JSONObject messageJson;
+//	private JSONObject messageJson;
 	/**
 	 * Generic Header Types
 	 */
@@ -53,11 +52,11 @@ public class Request {
 		this.acceptEncoding = new ArrayList<>();
 		this.acceptLanguage = new ArrayList<>();
 		
-		try{
-			messageJson = new JSONObject(message);
-		}catch(JSONException e){
-			
-		}
+//		try{
+//			messageJson = new JSONObject(message);
+//		}catch(JSONException e){
+//			
+//		}
 		
 		//The HeaderLine GET HTTP/1.1
 		String requestLine = header.remove(0);
@@ -158,15 +157,15 @@ public class Request {
 	 */
 	public void setMessageBody(String msg){
 		this.messageStr = msg;
-		try{
-			this.messageJson = new JSONObject(msg);
-		}catch(JSONException e){
-			
-		}
+//		try{
+//			this.messageJson = new JSONObject(msg);
+//		}catch(JSONException e){
+//			
+//		}
 	}
-	public JSONObject getMessageJson(){
-		return this.messageJson;
-	}
+//	public JSONObject getMessageJson(){
+//		return this.messageJson;
+//	}
 	public String getMessageString(){
 		return this.messageStr;
 	}

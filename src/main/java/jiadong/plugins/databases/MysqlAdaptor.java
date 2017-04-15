@@ -100,17 +100,17 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		// TODO Auto-generated method stub
 		
 	}
-	@Override
-	public Connection connect(String url, int port, String name, String passwd,
-			String database) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public void disconnect(Connection connection) {
-		// TODO Auto-generated method stub
-		
-	}
+//	@Override
+//	public Connection connect(String url, int port, String name, String passwd,
+//			String database) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//	@Override
+//	public void disconnect(Connection connection) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 	@Override
 	public void insert(ArrayList<MinimisedObject> statements, Class<?> claz) {
 		List<MinimisedObject> l_mo = statements

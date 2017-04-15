@@ -6,10 +6,6 @@ import java.net.Socket;
 import java.util.Date;
 import jiadong.managers.LoggingManager;
 import jiadong.managers.PortListenerManager;
-import jiadong.plugins.portListeners.http.ClientThread;
-
-import java.util.ArrayList;
-
 public abstract class PortListener {
 	/**
 	 * Instance Variables
@@ -37,10 +33,10 @@ public abstract class PortListener {
 	protected ServerSocket server;
 	//Socket 
 	protected Socket 	client;
-	//Listen Thread
-	private Thread listenThread;
-	//Client Thread
-	private ArrayList<ClientThread> clientThreadList;
+//	//Listen Thread
+//	private Thread listenThread;
+//	//Client Thread
+//	private ArrayList<ClientThread> clientThreadList;
 	
 	/**
 	 * Constructor
