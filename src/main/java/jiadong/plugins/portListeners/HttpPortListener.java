@@ -21,16 +21,22 @@ public class HttpPortListener extends PortListener {
 	}
 	
 	public void keepListening(){
-		//started Server Socket.
+		/**
+		 * Start Server Socket
+		 */
 		listenThread = new Thread(new Runnable(){
 			@Override
 			public void run() {
 				ClientThread clientThread;
 				while(HttpPortListener.this.keepListen){
 					try {
-						//Received A Client Socket.
+						/**
+						 * Receive A Socket
+						 */
 						client = server.accept();
-						//Passing This Client Socket To A New Thread.
+						/**
+						 * Passing the Socket To A New Thread.
+						 */
 						clientThread = new ClientThread(client, HttpPortListener.this);
 						clientThreadList.add(clientThread);
 						clientThread.start();
@@ -55,11 +61,15 @@ public class HttpPortListener extends PortListener {
 		return r;
 	}
 	private Response processRequest(Request request){
-		//routing
+		/**
+		 * Routing
+		 */
 		RoutingWorker routingWorker = RoutingWorker.getInstance();
 		LoggingManager.getInstance().log(this, routingWorker.getRoutingJson().toString());
 		
-		//html & json
+		/**
+		 * HTML && JSON
+		 */
 		String routingResult = routingWorker.getRoute(request);
 		if(routingResult != null){
 			String[] tmp = routingResult.split("#");
@@ -73,6 +83,5 @@ public class HttpPortListener extends PortListener {
 	}
 	@Override
 	public void listenerDestructor() {
-		// TODO Auto-generated method stub
 	}
 }
