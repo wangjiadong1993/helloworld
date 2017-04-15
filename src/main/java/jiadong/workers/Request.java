@@ -1,4 +1,4 @@
-package jiadong.plugins.portListeners.http;
+package jiadong.workers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,15 +157,7 @@ public class Request {
 	 */
 	public void setMessageBody(String msg){
 		this.messageStr = msg;
-//		try{
-//			this.messageJson = new JSONObject(msg);
-//		}catch(JSONException e){
-//			
-//		}
 	}
-//	public JSONObject getMessageJson(){
-//		return this.messageJson;
-//	}
 	public String getMessageString(){
 		return this.messageStr;
 	}

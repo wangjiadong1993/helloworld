@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import jiadong.managers.LoggingManager;
-import jiadong.plugins.portListeners.http.Request;
-import jiadong.plugins.portListeners.http.Response;
+import jiadong.workers.Request;
+import jiadong.workers.Response;
 
 
 public class ControllerManager {

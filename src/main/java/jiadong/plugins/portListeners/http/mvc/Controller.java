@@ -1,7 +1,8 @@
 package jiadong.plugins.portListeners.http.mvc;
 
-import jiadong.plugins.portListeners.http.Request;
 import jiadong.plugins.portListeners.http.ResourceWorker;
+import jiadong.workers.Request;
+
 import static jiadong.managers.ResourceManager.HTML_DIR;
 public abstract class Controller {
 	private  Request request;

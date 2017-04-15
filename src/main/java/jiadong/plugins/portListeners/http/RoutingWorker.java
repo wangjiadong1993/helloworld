@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 import jiadong.managers.LoggingManager;
 import jiadong.utils.FileUtil;
+import jiadong.workers.Request;
+import jiadong.workers.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
