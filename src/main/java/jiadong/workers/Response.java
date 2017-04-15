@@ -73,6 +73,7 @@ public class Response {
 		this(code);
 		this.setMessage(message, messageType);
 	}
+	
 	public void setMessage(byte[] msg, String msgType){
 		this.messageBody = msg;
 		this.contentType = msgType;

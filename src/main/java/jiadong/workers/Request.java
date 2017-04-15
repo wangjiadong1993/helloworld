@@ -2,19 +2,20 @@ package jiadong.workers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Request {
-	public final String headerStr;
+	private String headerStr;
 	private String messageStr;
 	/**
 	 * HeaderLine
 	 */
 	public final String requestMethod;
 	public final String uri;
-	public final String fragment;
-	public final HashMap<String, String> params;
+	public String fragment;
+	public HashMap<String, String> params;
 	public final String protocolType;
 	public final String protocolVersion;
 	/**
@@ -27,43 +28,50 @@ public class Request {
 	public final String contentType;
 	public final String accept;
 	public final String contentLength;
+	
 	/**
 	 * Listed Headers
 	 */
 	public ArrayList<String> acceptEncoding;
 	public ArrayList<String> acceptLanguage;
 	/**
-	 * Json Message
+	 * JSON Message
 	 */
 //	private JSONObject messageJson;
 	/**
 	 * Generic Header Types
 	 */
-	private HashMap<String, String> headerFields;
+	private HashMap<String, String> headerFields = new HashMap<>();
 	/**
 	 * Constructor
-	 * @param header
-	 * @param message
 	 */
-	public Request(ArrayList<String> header, String message){
-		this.messageStr = message;
-		this.headerStr = "";
-		this.headerFields  = new HashMap<>();
-		this.acceptEncoding = new ArrayList<>();
-		this.acceptLanguage = new ArrayList<>();
+	public Request(String url, String method){
+		this(url, method, "");
+	}
+	
+	/**
+	 * 
+	 */
+	public Request(String url, String method, String msg){
+		this.requestMethod = method;
+		this.uri = url;
+		this.protocolType = "HTTP";
+		this.protocolVersion = "1.1";
 		
-//		try{
-//			messageJson = new JSONObject(message);
-//		}catch(JSONException e){
-//			
-//		}
+		this.host = url;
+		this.connection = "keep-alive";
+		this.origin = "";
+		this.userAgent = "HTTP";
+		this.contentType = "*/*";
+		this.accept = "*/*";
+		this.contentLength = String.valueOf(msg.length());
+				
+		this.messageStr = msg;
 		
-		//The HeaderLine GET HTTP/1.1
-		String requestLine = header.remove(0);
-		String[] headerLineOutput = requestLine.split("\\s+");
-		this.requestMethod= headerLineOutput[0];
-		this.uri = headerLineOutput[1];
-		
+		this.setFragment();
+		this.setParams();
+	}
+	public void setFragment(){
 		if(this.uri.contains("#")){
 			String tmp = null;
 			try{
@@ -75,6 +83,8 @@ public class Request {
 		}else{
 			this.fragment = null;
 		}
+	}
+	public void setParams(){
 		if(this.uri.contains("?")){
 			String params = null;
 			if(this.uri.contains("#")){
@@ -102,7 +112,27 @@ public class Request {
 		}else{
 			this.params = null;
 		}
+	}
+	/**
+	 * Constructor
+	 * @param header
+	 * @param message
+	 */
+	public Request(ArrayList<String> header, String message){
+		this.messageStr = message;
+		this.headerStr = "";
+		this.headerFields  = new HashMap<>();
+		this.acceptEncoding = new ArrayList<>();
+		this.acceptLanguage = new ArrayList<>();
 		
+		//The HeaderLine GET HTTP/1.1
+		String requestLine = header.remove(0);
+		String[] headerLineOutput = requestLine.split("\\s+");
+		this.requestMethod= headerLineOutput[0];
+		this.uri = headerLineOutput[1];
+		
+		setFragment();
+		setParams();
 		
 		headerLineOutput = headerLineOutput[2].split("/");
 		this.protocolType= headerLineOutput[0];
@@ -163,5 +193,29 @@ public class Request {
 	}
 	public String getHeaderValueByKey(String key){
 		return this.headerFields.get(key);
+	}
+	public void setHeader(String key, String value){
+		this.headerFields.put(key, value);
+	}
+
+	public String compiledHeader(){
+		String requestLine = this.requestMethod+" " + this.uri + "HTTP/1.1";
+		this.headerStr = requestLine + "\r\n";
+		this.headerStr += ("Connection: "+this.connection + "\r\n");
+		this.headerStr += ("Origin: "+this.origin + "\r\n");
+		this.headerStr += ("Accept: "+this.accept + "\r\n");
+		this.headerStr += ("User-Agent: "+this.userAgent + "\r\n");
+		this.headerStr += ("Content-Type: "+this.contentType + "\r\n");
+		this.headerStr += ("Content-Length: "+this.contentLength + "\r\n");
+		this.headerStr += ("Accept-Encoding: "+this.acceptEncoding + "\r\n");
+		this.headerStr += ("Accept-Language: "+this.acceptLanguage + "\r\n");
+		for(Entry<String, String> e : this.headerFields.entrySet()){
+			this.headerStr += (e.getKey() + e.getValue() + "\r\n");
+		}
+		this.headerStr += "\r\n";
+		return this.headerStr;
+	}
+	public String getCompiledRequest(){
+		return compiledHeader() + this.messageStr;
 	}
 }
