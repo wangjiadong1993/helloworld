@@ -55,24 +55,23 @@ public abstract class Model<T extends Model<T>> implements Serializable {
 			throw e;
 		}
 	}
-	public final List<T> update(String key, Object value) throws IllegalArgumentException, IllegalAccessException{
+	public final void update(String key, Object value) throws IllegalArgumentException, IllegalAccessException{
 		List<T> l_t = this.find(this._id);
 		if(l_t == null){
-			return null;
+			return;
 		}else if(l_t.size() == 0){
-			return null;
+			return;
 		}else{
 			T t = l_t.get(0);
 			ArrayList<MinimisedObject> l_mo = t.getSerializedModel();
 			List<MinimisedObject> l_mo_new = l_mo.stream().filter(mo -> mo._name == key).collect(Collectors.toList());
 			if(l_mo_new == null){
-				return null;
+				return;
 			}else if(l_mo_new.size() == 0){
-				return null;
+				return;
 			}else{
 				l_mo_new.get(0)._value = value;
-				List<List<MinimisedObject>> tmp = adaptor.update(this._id, l_mo_new.get(0), this.getClass()); 
-				return getModel(tmp);
+				adaptor.update(this._id, l_mo_new.get(0), this.getClass()); 
 			}
 		}
 		

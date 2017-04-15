@@ -67,9 +67,9 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 //		}
 	}
 	@Override
-	public List<List<MinimisedObject>> update(Long id,MinimisedObject mo, Class<?> claz) {
+	public void update(Long id,MinimisedObject mo, Class<?> claz) {
 		if(id == null){
-			return null;
+			return;
 		}
 		String val = null;
 		if(mo._value == null){
@@ -88,7 +88,7 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return;
 	}
 	@Override
 	public void create(String statement) {
@@ -112,12 +112,11 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		
 	}
 	@Override
-	public List<List<MinimisedObject>> insert(ArrayList<MinimisedObject> statements, Class<?> claz) {
+	public void insert(ArrayList<MinimisedObject> statements, Class<?> claz) {
 		List<MinimisedObject> l_mo = statements
 									.stream()
 									.filter(mo -> !mo._name.equals("_id"))
 									.collect(Collectors.toList());
-		ResultSet r = null;
 		String keys = "(";
 		String vals = "values(";
 		boolean tmp = true;
@@ -147,9 +146,8 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 			s.executeUpdate(q);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			r = null;
 		}
-		return null;
+		return;
 	}
 	@Override
 	public List<List<MinimisedObject>> find(MinimisedObject object, Class<?>  claz, List<MinimisedObject> fields) {

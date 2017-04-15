@@ -20,8 +20,6 @@ public class HelloWorldController extends Controller{
 			for(Person p_t : l_p){
 				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
 			}
-//			l_p.get(0).update("_name", "fake_new");
-//			l_p.get(0).delete();
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -31,7 +29,7 @@ public class HelloWorldController extends Controller{
 		return new Response(200,this.getPage("helloworld.html"), "text/html");
 	}
 	public Response tryPost(){
-		Request tmp = this.getRequest();
+//		Request tmp = this.getRequest();
 		return new Response(200,this.getPage("helloworld.html"), "text/html");
 	}
 }
