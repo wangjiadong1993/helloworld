@@ -20,8 +20,8 @@ public class HelloWorldController extends Controller{
 			for(Person p_t : l_p){
 				LoggingManager.getInstance().log(this, "PERSON:: "+p_t.toString());
 			}
-//			p.insert();
-			l_p.get(0).update("_name", "fake_new");
+//			l_p.get(0).update("_name", "fake_new");
+//			l_p.get(0).delete();
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

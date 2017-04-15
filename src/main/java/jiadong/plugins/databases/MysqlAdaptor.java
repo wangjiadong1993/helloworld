@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,24 +49,28 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 	}
 	@Override
 	public void delete(Long id, Class<?> claz) {
-		LoggingManager.getInstance().log(this, "Deleting...");
-		String id_str;
-		try{
-			id_str = id.toString();
-		}catch(NullPointerException e){
-			id_str = "NULL";
-		}
-		try {
-			Statement s = connection.createStatement();
-			String q = "delete from " + claz.getSimpleName() + " where id = " + id_str + ";";
-			LoggingManager.getInstance().log(this, "Query::" + q);
-			s.executeUpdate(q);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+//		LoggingManager.getInstance().log(this, "Deleting...");
+//		String id_str;
+//		try{
+//			id_str = id.toString();
+//		}catch(NullPointerException e){
+//			id_str = "NULL";
+//		}
+		update(id, new MinimisedObject("String", ZonedDateTime.now(ZoneOffset.UTC).toString(), "_deleted"), claz);
+//		try {
+//			Statement s = connection.createStatement();
+//			String q = "delete from " + claz.getSimpleName() + " where id = " + id_str + ";";
+//			LoggingManager.getInstance().log(this, "Query::" + q);
+//			s.executeUpdate(q);
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
 	}
 	@Override
 	public List<List<MinimisedObject>> update(Long id,MinimisedObject mo, Class<?> claz) {
+		if(id == null){
+			return null;
+		}
 		String val = null;
 		if(mo._value == null){
 			val = "NULL";
@@ -162,7 +168,7 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 		try {
 			Statement s = connection.createStatement();
 			
-			String q = "select * from "+claz.getSimpleName()+" where "+object._name.substring(1) +" = "+val_str +";";
+			String q = "select * from "+claz.getSimpleName()+" where "+object._name.substring(1) +" = "+val_str +" and deleted is NULL;";
 			LoggingManager.getInstance().log(this, "Query::"+ q);
 			r = s.executeQuery(q);
 		} catch (SQLException e) {
