@@ -29,6 +29,5 @@ public class MinimisedObject {
 		}finally{
 			_value =val;
 		}
-		
 	}
 }
