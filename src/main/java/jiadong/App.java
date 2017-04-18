@@ -64,7 +64,6 @@ public class App
 				| SecurityException | InstantiationException
 				| IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	app.databaseManager = DatabaseManager.getInstance();

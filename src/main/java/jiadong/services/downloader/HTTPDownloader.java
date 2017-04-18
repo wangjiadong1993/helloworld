@@ -24,6 +24,7 @@ public class HTTPDownloader implements Service {
 	private String url;
 	private String host;
 	private int port;
+	private Request request;
 	private Status DownloadStatus = Status.NONE;
 	public enum Status{
 		NONE,
@@ -40,18 +41,7 @@ public class HTTPDownloader implements Service {
 		this();
 		this.outputFile = outputFile;
 		this.threadCount = threadCount;
-		this.url = url;
-		if(url.toLowerCase().startsWith("http://")){
-			url = url.substring(7);	
-		}
-		this.host = this.url.substring(0,  this.url.indexOf('/'));
-		if(this.host.contains(":")){
-			int col = this.host.indexOf(":");
-			this.port = Integer.parseInt(this.host.substring(col + 1));
-			this.host = this.host.substring(0, col);
-		}else{
-			this.port = 80;
-		}
+		this.request = new Request(url, "GET");
 	}
 	public void startDownload() throws IOException{
 		Socket socket;
@@ -60,7 +50,7 @@ public class HTTPDownloader implements Service {
 		BufferedReader br;
 //		OutputStreamWriter bw = new OutputStreamWriter(new FileWriter(new File(this.outputFile)));
 		try {
-			socket = new Socket(this.host, this.port);
+			socket = new Socket(this.request.host, Integer.parseInt(this.request.port));
 			os = socket.getOutputStream();
 			is = socket.getInputStream();
 			br = new BufferedReader(new InputStreamReader(is));
@@ -71,8 +61,9 @@ public class HTTPDownloader implements Service {
 			e.printStackTrace();
 			throw e;
 		}
+		String requestString = this.request.getCompiledRequest();
 		try {
-			os.write(new Request(this.url, "GET").getCompiledRequest().getBytes());
+			os.write(requestString.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
