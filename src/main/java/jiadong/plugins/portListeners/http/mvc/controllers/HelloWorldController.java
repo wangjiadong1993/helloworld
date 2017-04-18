@@ -1,11 +1,9 @@
 package jiadong.plugins.portListeners.http.mvc.controllers;
 
 import java.util.List;
-
 import jiadong.managers.LoggingManager;
 import jiadong.plugins.portListeners.http.mvc.Controller;
 import jiadong.plugins.portListeners.http.mvc.models.Person;
-import jiadong.workers.Request;
 import jiadong.workers.Response;
 
 

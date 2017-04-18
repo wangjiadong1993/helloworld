@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -57,7 +58,7 @@ public class HTTPDownloader implements Service {
 		OutputStream os;
 		InputStream is;
 		BufferedReader br;
-		OutputStreamWriter bw = new OutputStreamWriter(new FileWriter(new File(this.outputFile)));
+//		OutputStreamWriter bw = new OutputStreamWriter(new FileWriter(new File(this.outputFile)));
 		try {
 			socket = new Socket(this.host, this.port);
 			os = socket.getOutputStream();
