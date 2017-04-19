@@ -13,7 +13,7 @@ public class Request {
 	 * HeaderLine
 	 */
 	public final String requestMethod;
-	public final String uri;
+	public String uri;
 	public String fragment;
 	public HashMap<String, String> params;
 	public final String protocolType;
@@ -55,6 +55,15 @@ public class Request {
 	public Request(String url, String method, String msg){
 		this.requestMethod = method;
 		this.uri = url;
+		if(uri.contains("/")){
+			this.uri = this.uri.substring(uri.indexOf("/"));
+		}else if(uri.contains("#")){
+			this.uri = "/"+this.uri.substring(uri.indexOf("#"));
+		}else if(uri.contains("?")){
+			this.uri = "/"+this.uri.substring(uri.indexOf("?"));
+		}else{
+			this.uri = "/";
+		}
 		this.protocolType = "HTTP";
 		this.protocolVersion = "1.1";
 		
@@ -199,7 +208,7 @@ public class Request {
 	}
 
 	public String compiledHeader(){
-		String requestLine = this.requestMethod+" " + this.uri + "HTTP/1.1";
+		String requestLine = this.requestMethod+" " + this.uri + " HTTP/1.1";
 		this.headerStr = requestLine + "\r\n";
 		this.headerStr += ("Connection: "+this.connection + "\r\n");
 		this.headerStr += ("Origin: "+this.origin + "\r\n");
@@ -207,8 +216,6 @@ public class Request {
 		this.headerStr += ("User-Agent: "+this.userAgent + "\r\n");
 		this.headerStr += ("Content-Type: "+this.contentType + "\r\n");
 		this.headerStr += ("Content-Length: "+this.contentLength + "\r\n");
-		this.headerStr += ("Accept-Encoding: "+this.acceptEncoding + "\r\n");
-		this.headerStr += ("Accept-Language: "+this.acceptLanguage + "\r\n");
 		for(Entry<String, String> e : this.headerFields.entrySet()){
 			this.headerStr += (e.getKey() + e.getValue() + "\r\n");
 		}
