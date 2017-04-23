@@ -6,7 +6,7 @@ import jiadong.utils.JsonUtil;
 import org.json.JSONObject;
 
 public class ResourceManager {
-	public static final String BASE_DIR 				= 	"/Users/wangjiadong/Documents/Development/Eclipse/helloworld/";
+	public static final String BASE_DIR 				= 	"/home/jiadong/Develop/PersonalWork/JDServer/";
 	public static final String CONFIGURATION_FILE		=	BASE_DIR + "resources/json/configuration.js";
 	
 	public static final String ROUTINE_FILE				= 	BASE_DIR + "resources/json/routing.js";

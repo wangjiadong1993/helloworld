@@ -3,25 +3,62 @@ package jiadong.workers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Request {
+	/**
+	 *  http://www.google.com:123/v1/v2/v3?q=helloworld#segment1
+	 *  
+	 */
+	
 	private String headerStr;
 	private String messageStr;
 	/**
 	 * HeaderLine
 	 */
 	public final String requestMethod;
+<<<<<<< HEAD
 	public String uri;
+=======
+	/**
+	 *  http://www.google.com:123/v1/v2/v3?q=helloworld#segment1
+	 *  
+	 */
+	public final String uri;
+	
+	
+	/**
+	 *  /v1/v2/v3?q=helloworld#segment1
+	 *  
+	 */
+	public final String subUri;
+	/**
+	 *  #segment1
+	 *  
+	 */
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 	public String fragment;
+	/**
+	 *  q=helloworld
+	 *  
+	 */
 	public HashMap<String, String> params;
 	public final String protocolType;
 	public final String protocolVersion;
 	/**
 	 * Headers
 	 */
+	/**
+	 *  www.google.com
+	 *  
+	 */
 	public final String host;
+	/**
+	 * 123
+	 */
+	public final String port;
 	public final String connection;
 	public final String origin;
 	public final String userAgent;
@@ -54,6 +91,7 @@ public class Request {
 	 */
 	public Request(String url, String method, String msg){
 		this.requestMethod = method;
+<<<<<<< HEAD
 		this.uri = url;
 		if(uri.contains("/")){
 			this.uri = this.uri.substring(uri.indexOf("/"));
@@ -66,8 +104,56 @@ public class Request {
 		}
 		this.protocolType = "HTTP";
 		this.protocolVersion = "1.1";
+=======
+		if(url.toLowerCase().startsWith("http://")){
+			this.uri = url;
+			this.protocolType = "HTTP";
+			this.protocolVersion = "1.1";
+		}else if(url.toLowerCase().startsWith("https://")){
+			this.uri = "Http://" + url;
+			this.protocolType = "HTTPS";
+			this.protocolVersion = "1.1";
+		}else{
+			this.uri = "http://" + url;
+			this.protocolType = "HTTP";
+			this.protocolVersion = "1.1";
+		}
 		
-		this.host = url;
+		String tmp = this.uri;
+		tmp = tmp.substring(7);
+		if(!tmp.contains(":")){
+			this.port = "80";
+			if(!tmp.contains("/")){
+				if(!tmp.contains("?")){
+					if(!tmp.contains("#")){
+						this.host = tmp;
+						this.subUri = "/";
+					}else{
+						this.host = tmp.substring(0, tmp.indexOf("#"));
+						this.subUri = "/"+ tmp.substring(tmp.indexOf("#"));
+					}
+				}else{
+					this.host = tmp.substring(0, tmp.indexOf("?"));
+					this.subUri = "/"+ tmp.substring(tmp.indexOf("?"));
+				}
+			}else{
+				this.host = tmp.substring(0, tmp.indexOf("/"));
+				this.subUri = tmp.substring(tmp.indexOf("/"));
+			}
+			
+		}else{
+			this.host =tmp.substring(0, tmp.indexOf(":"));
+			Scanner sc = new Scanner(tmp.substring(tmp.indexOf(":")));
+			this.port = String.valueOf(sc.nextInt());
+			if(sc.hasNext()){
+				this.subUri = sc.next();
+			}else{
+				this.subUri = "/";
+			}
+			sc.close();
+		}
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
+		
 		this.connection = "keep-alive";
 		this.origin = "";
 		this.userAgent = "HTTP";
@@ -139,7 +225,8 @@ public class Request {
 		String[] headerLineOutput = requestLine.split("\\s+");
 		this.requestMethod= headerLineOutput[0];
 		this.uri = headerLineOutput[1];
-		
+		this.port = null;
+		this.subUri = this.uri;
 		setFragment();
 		setParams();
 		
@@ -208,7 +295,11 @@ public class Request {
 	}
 
 	public String compiledHeader(){
+<<<<<<< HEAD
 		String requestLine = this.requestMethod+" " + this.uri + " HTTP/1.1";
+=======
+		String requestLine = this.requestMethod+" " + this.subUri + " HTTP/1.1";
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		this.headerStr = requestLine + "\r\n";
 		this.headerStr += ("Connection: "+this.connection + "\r\n");
 		this.headerStr += ("Origin: "+this.origin + "\r\n");

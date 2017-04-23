@@ -1,7 +1,7 @@
 {
 	"DatabaseName": "Server",
 	"UserName": 	"root",
-	"Password": 	"Wangjiadong1215",
+	"Password": 	"jiadong",
 	"PortNum": 		"3306",
 	"URL":			"127.0.0.1",
 	"Type":			"MySQL"

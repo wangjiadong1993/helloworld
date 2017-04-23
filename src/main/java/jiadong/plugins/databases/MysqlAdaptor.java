@@ -1,5 +1,6 @@
 package jiadong.plugins.databases;
 
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -44,7 +45,6 @@ public class MysqlAdaptor implements DatabaseAdaptor<MysqlAdaptor> {
 	}
 	@Override
 	public List<List<MinimisedObject>> select(String statement) {
-		
 		return null;
 	}
 	@Override

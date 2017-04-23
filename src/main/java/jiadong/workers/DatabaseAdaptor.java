@@ -12,6 +12,7 @@ public interface DatabaseAdaptor<T extends DatabaseAdaptor<T>>{
 	public void 						update(Long id,MinimisedObject attribute, Class<?> claz);
 	public void						 	insert(ArrayList<MinimisedObject> statement, Class<?> claz);
 	public List<List<MinimisedObject>> 	find(MinimisedObject object, Class<?> claz, List<MinimisedObject> fields);
+
 	
 	public void 		create(String statement);
 	public void 		alter(String statement);
