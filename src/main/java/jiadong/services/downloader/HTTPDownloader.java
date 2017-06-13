@@ -1,20 +1,17 @@
 package jiadong.services.downloader;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.util.regex.Pattern;
 
+import jiadong.managers.LoggingManager;
 import jiadong.services.Service;
 import jiadong.workers.Request;
 
@@ -34,11 +31,7 @@ public class HTTPDownloader implements Service {
 		PAUSED,
 		ERROR
 	}
-	private HTTPDownloader(){
-		;
-	}
 	public HTTPDownloader(String outputFile, int threadCount, String url){
-		this();
 		this.outputFile = outputFile;
 		this.threadCount = threadCount;
 		this.request = new Request(url, "GET");
@@ -48,7 +41,11 @@ public class HTTPDownloader implements Service {
 		OutputStream os;
 		InputStream is;
 		BufferedReader br;
+<<<<<<< HEAD
+		FileOutputStream fos = new FileOutputStream(new File(this.outputFile));
+=======
 //		OutputStreamWriter bw = new OutputStreamWriter(new FileWriter(new File(this.outputFile)));
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		try {
 			socket = new Socket(this.request.host, Integer.parseInt(this.request.port));
 			os = socket.getOutputStream();
@@ -56,14 +53,23 @@ public class HTTPDownloader implements Service {
 			br = new BufferedReader(new InputStreamReader(is));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
+			fos.close();
 			throw e;
 		} catch (IOException e) {
 			e.printStackTrace();
+			fos.close();
 			throw e;
 		}
+<<<<<<< HEAD
+		String r = new Request(this.url, "GET").getCompiledRequest();
+		LoggingManager.getInstance().log(null, r);
+		try {
+			os.write(r.getBytes());
+=======
 		String requestString = this.request.getCompiledRequest();
 		try {
 			os.write(requestString.getBytes());
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -72,11 +78,13 @@ public class HTTPDownloader implements Service {
 		try {
 			while(br.ready()){
 				tmp = br.readLine();
+				LoggingManager.getInstance().log("What", tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
 				}else if(tmp.equals("\r\n")){
 					break;
 				}else{
+					
 					continue;
 				}
 			}
@@ -85,8 +93,10 @@ public class HTTPDownloader implements Service {
 		}
 		byte[] msg = new byte[length];
 		is.read(msg);
-		
+		LoggingManager.getInstance().log(this, new String(msg));
+		fos.write(msg);
 		socket.close();
+		fos.close();
 	}
 	public Status getStatus(){
 		return this.DownloadStatus;

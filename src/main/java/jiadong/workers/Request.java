@@ -19,6 +19,9 @@ public class Request {
 	 * HeaderLine
 	 */
 	public final String requestMethod;
+<<<<<<< HEAD
+	public String uri;
+=======
 	/**
 	 *  http://www.google.com:123/v1/v2/v3?q=helloworld#segment1
 	 *  
@@ -35,6 +38,7 @@ public class Request {
 	 *  #segment1
 	 *  
 	 */
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 	public String fragment;
 	/**
 	 *  q=helloworld
@@ -87,6 +91,20 @@ public class Request {
 	 */
 	public Request(String url, String method, String msg){
 		this.requestMethod = method;
+<<<<<<< HEAD
+		this.uri = url;
+		if(uri.contains("/")){
+			this.uri = this.uri.substring(uri.indexOf("/"));
+		}else if(uri.contains("#")){
+			this.uri = "/"+this.uri.substring(uri.indexOf("#"));
+		}else if(uri.contains("?")){
+			this.uri = "/"+this.uri.substring(uri.indexOf("?"));
+		}else{
+			this.uri = "/";
+		}
+		this.protocolType = "HTTP";
+		this.protocolVersion = "1.1";
+=======
 		if(url.toLowerCase().startsWith("http://")){
 			this.uri = url;
 			this.protocolType = "HTTP";
@@ -134,6 +152,7 @@ public class Request {
 			}
 			sc.close();
 		}
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		
 		this.connection = "keep-alive";
 		this.origin = "";
@@ -276,7 +295,11 @@ public class Request {
 	}
 
 	public String compiledHeader(){
+<<<<<<< HEAD
+		String requestLine = this.requestMethod+" " + this.uri + " HTTP/1.1";
+=======
 		String requestLine = this.requestMethod+" " + this.subUri + " HTTP/1.1";
+>>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		this.headerStr = requestLine + "\r\n";
 		this.headerStr += ("Connection: "+this.connection + "\r\n");
 		this.headerStr += ("Origin: "+this.origin + "\r\n");
@@ -284,8 +307,6 @@ public class Request {
 		this.headerStr += ("User-Agent: "+this.userAgent + "\r\n");
 		this.headerStr += ("Content-Type: "+this.contentType + "\r\n");
 		this.headerStr += ("Content-Length: "+this.contentLength + "\r\n");
-		this.headerStr += ("Accept-Encoding: "+this.acceptEncoding + "\r\n");
-		this.headerStr += ("Accept-Language: "+this.acceptLanguage + "\r\n");
 		for(Entry<String, String> e : this.headerFields.entrySet()){
 			this.headerStr += (e.getKey() + e.getValue() + "\r\n");
 		}
