@@ -41,9 +41,11 @@ public class HTTPDownloader implements Service, Collector {
 	public Status getStatus(){
 		return this.DownloadStatus;
 	}
+	public void tryWrite(){
+		
+	}
 	@Override
 	public void sendData(Request r, byte[] input) {
-		
 		
 	}
 
