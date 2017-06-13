@@ -19,9 +19,6 @@ public class Request {
 	 * HeaderLine
 	 */
 	public final String requestMethod;
-<<<<<<< HEAD
-	public String uri;
-=======
 	/**
 	 *  http://www.google.com:123/v1/v2/v3?q=helloworld#segment1
 	 *  
@@ -30,7 +27,7 @@ public class Request {
 	
 	
 	/**
-	 *  /v1/v2/v3?q=helloworld#segment1
+	 *  /v1/v2/v3?q=hello#segment1
 	 *  
 	 */
 	public final String subUri;
@@ -38,10 +35,9 @@ public class Request {
 	 *  #segment1
 	 *  
 	 */
->>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 	public String fragment;
 	/**
-	 *  q=helloworld
+	 *  q=hello
 	 *  
 	 */
 	public HashMap<String, String> params;
@@ -91,20 +87,6 @@ public class Request {
 	 */
 	public Request(String url, String method, String msg){
 		this.requestMethod = method;
-<<<<<<< HEAD
-		this.uri = url;
-		if(uri.contains("/")){
-			this.uri = this.uri.substring(uri.indexOf("/"));
-		}else if(uri.contains("#")){
-			this.uri = "/"+this.uri.substring(uri.indexOf("#"));
-		}else if(uri.contains("?")){
-			this.uri = "/"+this.uri.substring(uri.indexOf("?"));
-		}else{
-			this.uri = "/";
-		}
-		this.protocolType = "HTTP";
-		this.protocolVersion = "1.1";
-=======
 		if(url.toLowerCase().startsWith("http://")){
 			this.uri = url;
 			this.protocolType = "HTTP";
@@ -152,7 +134,6 @@ public class Request {
 			}
 			sc.close();
 		}
->>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		
 		this.connection = "keep-alive";
 		this.origin = "";
@@ -295,11 +276,7 @@ public class Request {
 	}
 
 	public String compiledHeader(){
-<<<<<<< HEAD
-		String requestLine = this.requestMethod+" " + this.uri + " HTTP/1.1";
-=======
 		String requestLine = this.requestMethod+" " + this.subUri + " HTTP/1.1";
->>>>>>> fd444ac65497f1d3f2bfa55b38e0abc44a425c31
 		this.headerStr = requestLine + "\r\n";
 		this.headerStr += ("Connection: "+this.connection + "\r\n");
 		this.headerStr += ("Origin: "+this.origin + "\r\n");
