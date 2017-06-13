@@ -276,8 +276,9 @@ public class Request {
 	}
 
 	public String compiledHeader(){
-		String requestLine = this.requestMethod+" " + this.subUri + " HTTP/1.1";
-		this.headerStr = requestLine + "\r\n";
+		this.headerStr = this.requestMethod+" " + this.subUri + " HTTP/1.1" + "\r\n";
+		this.headerStr += ("Host: "+ this.host+ "\r\n");
+		
 		this.headerStr += ("Connection: "+this.connection + "\r\n");
 		this.headerStr += ("Origin: "+this.origin + "\r\n");
 		this.headerStr += ("Accept: "+this.accept + "\r\n");

@@ -14,19 +14,17 @@ public class HTTPDownloadThread implements Runnable{
 	private byte[] inputByteArray;
 	private Request request;
 	private Collector collector;
-	private Status status = Status.NONE;
+	private DownloadStatus status = DownloadStatus.NONE;
 	
-	public enum Status{
-		NONE,
-		INITIALIZED,
-		DOWNLOADING,
-		PAUSED,
-		ERROR
-	}
 	public HTTPDownloadThread(Request r, Collector c){
 		this.request = r;
 		this.collector = c;
-		this.status = Status.INITIALIZED;
+		this.status = DownloadStatus.INITIALIZED;
+	}
+	public void setRequest(Request r){
+		this.request = r;
+		inputByteArray = null;
+		this.status = DownloadStatus.INITIALIZED;
 	}
 	@Override
 	public void run() {
@@ -34,7 +32,7 @@ public class HTTPDownloadThread implements Runnable{
 
 			startDownload();
 		} catch (IOException e) {
-			this.status = Status.ERROR;
+			this.status = DownloadStatus.ERROR;
 			e.printStackTrace();
 		}
 		
@@ -44,7 +42,7 @@ public class HTTPDownloadThread implements Runnable{
 		OutputStream os;
 		InputStream is;
 		BufferedReader br;
-		this.status = Status.DOWNLOADING;
+		this.status = DownloadStatus.DOWNLOADING;
 		try {
 			socket = new Socket(this.request.host, Integer.parseInt(this.request.port));
 			os = socket.getOutputStream();
@@ -79,8 +77,9 @@ public class HTTPDownloadThread implements Runnable{
 		inputByteArray = new byte[length];
 		is.read(inputByteArray);
 		socket.close();
-		this.status = Status.NONE;
 		collector.sendData(this.request, this.inputByteArray);
+		this.status = DownloadStatus.NONE;
+		this.request= null;
 		collector.register(this);
 	}
 
