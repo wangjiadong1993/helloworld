@@ -29,7 +29,6 @@ public class HTTPDownloadThread implements Runnable{
 	@Override
 	public void run() {
 		try {
-
 			startDownload();
 		} catch (IOException e) {
 			this.status = DownloadStatus.ERROR;
@@ -53,16 +52,18 @@ public class HTTPDownloadThread implements Runnable{
 			throw e;
 		}
 		try {
-			os.write(this.request.getCompiledRequest().getBytes());
+			String tmp = this.request.getCompiledRequest();
+			os.write(tmp.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		String tmp = null;
 		int length = 0;
 		try {
-			while(br.ready()){
+			while(true){
+				while(!br.ready());
 				tmp = br.readLine();
-				LoggingManager.getInstance().log("What", tmp);
+//				System.out.println(tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
 				}else if(tmp.equals("\r\n")){

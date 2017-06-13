@@ -20,7 +20,8 @@ public class HttpUtil {
 		String tmp = null;
 		long length = 0;
 		try {
-			while(br.ready()){
+			while(true){
+				while(!br.ready());
 				tmp = br.readLine();
 				System.out.println(tmp);
 				if(tmp.startsWith("Content-Length")){

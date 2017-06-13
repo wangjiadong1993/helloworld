@@ -280,7 +280,7 @@ public class Request {
 		this.headerStr += ("Host: "+ this.host+ "\r\n");
 		
 		this.headerStr += ("Connection: "+this.connection + "\r\n");
-		this.headerStr += ("Origin: "+this.origin + "\r\n");
+//		this.headerStr += ("Origin: "+this.origin + "\r\n");
 		this.headerStr += ("Accept: "+this.accept + "\r\n");
 		this.headerStr += ("User-Agent: "+this.userAgent + "\r\n");
 		this.headerStr += ("Content-Type: "+this.contentType + "\r\n");

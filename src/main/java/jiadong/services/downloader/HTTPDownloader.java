@@ -24,7 +24,7 @@ public class HTTPDownloader implements Service, Collector {
 	private boolean _data_terminal_detected = false;
 	private List<HTTPDownloadThread> workerQueue = new ArrayList<>();
 	private List<HTTPDownloadThread> idelRegistry = new ArrayList<>();
-	private int threadCount = 1;
+	private int threadCount = 5;
 	private Request request;
 	private PriorityQueue<DownloadChunk> chunkQueue; 
 	private DownloadStatus status = DownloadStatus.NONE;
@@ -48,8 +48,8 @@ public class HTTPDownloader implements Service, Collector {
 			public int compare(DownloadChunk o1, DownloadChunk o2) {
 				String o1_range =  o1.request.getHeaderValueByKey("Range");
 				String o2_range =  o2.request.getHeaderValueByKey("Range");
-				o1_range = o1_range.substring(0, o1_range.indexOf('-'));
-				o2_range = o2_range.substring(0, o2_range.indexOf('-'));
+				o1_range = o1_range.substring(o1_range.indexOf('=')+1, o1_range.indexOf('-'));
+				o2_range = o2_range.substring(o2_range.indexOf('=')+1, o2_range.indexOf('-'));
 				return Integer.parseInt(o1_range) - Integer.parseInt(o2_range);
 			}
 		});
@@ -77,7 +77,7 @@ public class HTTPDownloader implements Service, Collector {
 	public DownloadStatus getStatus(){
 		return this.status;
 	}
-	private void tryWrite(){
+	private synchronized void tryWrite(){
 		if(chunkQueue.isEmpty()) return;
 		if(chunkQueue.peek().request.getHeaderValueByKey("Range").startsWith(""+this._download_point+"-")){
 			writeToFile(this.outputFile, chunkQueue.poll().chunk);
@@ -87,7 +87,7 @@ public class HTTPDownloader implements Service, Collector {
 			return ;
 		}
 	}
-	private void writeToFile(File f, byte[] data) {
+	private synchronized void writeToFile(File f, byte[] data) {
 		FileOutputStream fos;
 		try {
 			fos = new FileOutputStream(f);
@@ -100,16 +100,13 @@ public class HTTPDownloader implements Service, Collector {
 		}
 	}
 	@Override
-	public void sendData(Request r, byte[] input) {
-		if(input.length == 0){
-			
-		}
+	public synchronized void  sendData(Request r, byte[] input) {
 		this.chunkQueue.add(new DownloadChunk(r, input));
 		tryWrite();
 	}
 
 	@Override
-	public void register(HTTPDownloadThread downloader) {
+	public synchronized void register(HTTPDownloadThread downloader) {
 		idelRegistry.add(downloader);
 	}
 }
