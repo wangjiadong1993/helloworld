@@ -66,7 +66,7 @@ public class HTTPDownloader implements Service, Collector {
 		while(this._data_length == -1 ? (!this._data_terminal_detected) : this._data_length >= this._request_point){
 			while(this.idelRegistry.isEmpty()){
 				try {
-					Thread.sleep(100);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -86,6 +86,7 @@ public class HTTPDownloader implements Service, Collector {
 		Request r = chunkQueue.peek().request;
 		String range = r.getHeaderValueByKey("Range");
 		if(range.startsWith("Bytes="+this._download_point+"-")){
+			chunkQueue.poll();
 			writeToFile(this.outputFile, chunkQueue.poll().chunk);
 			this._download_point += CHUNK_SIZE;
 			tryWrite();
