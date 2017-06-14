@@ -4,6 +4,7 @@ package jiadong.services.downloader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,8 +17,8 @@ import jiadong.workers.Request;
 
 public class HTTPDownloader implements Service, Collector {
 	private static final int THREAD_MAX_COUNT = 50;
-	private static final int CHUNK_SIZE = 1024;
-	private FileOutputStream outputFile;
+	private static final int CHUNK_SIZE = 10240;
+	private FileWriter outputFile;
 	private long _download_point = 0;
 	private long _request_point = 0;
 	private long _data_length = -1;
@@ -28,8 +29,8 @@ public class HTTPDownloader implements Service, Collector {
 	private Request request;
 	private PriorityQueue<DownloadChunk> chunkQueue; 
 	private DownloadStatus status = DownloadStatus.NONE;
-	public HTTPDownloader(String outputFile, int threadCount, String url) throws FileNotFoundException{
-		this.outputFile = new FileOutputStream(new File(outputFile));
+	public HTTPDownloader(String outputFile, int threadCount, String url) throws IOException{
+		this.outputFile = new FileWriter(new File(outputFile));
 		this.threadCount = threadCount;
 		Request testForLength = new Request(url, "HEAD");
 		try {
@@ -112,7 +113,7 @@ public class HTTPDownloader implements Service, Collector {
 			return ;
 		}
 	}
-	private synchronized void writeToFile(byte[] data) {
+	private synchronized void writeToFile(char[] data) {
 		try {
 			this.outputFile.write(data);
 			this.outputFile.flush();
@@ -142,7 +143,7 @@ public class HTTPDownloader implements Service, Collector {
 		}
 	}
 	@Override
-	public synchronized void  sendData(Request r, byte[] input) {
+	public synchronized void  sendData(Request r, char[] input) {
 		this.chunkQueue.add(new DownloadChunk(r, input));
 		tryWrite();
 	}

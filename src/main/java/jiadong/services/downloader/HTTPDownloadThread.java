@@ -9,7 +9,7 @@ import java.net.Socket;
 import jiadong.workers.Request;
 
 public class HTTPDownloadThread implements Runnable{
-	private byte[] inputByteArray;
+	private char[] inputByteArray;
 	private Request request;
 	private Collector collector;
 	private DownloadStatus status = DownloadStatus.NONE;
@@ -33,7 +33,6 @@ public class HTTPDownloadThread implements Runnable{
 			this.status = DownloadStatus.ERROR;
 			e.printStackTrace();
 		}
-		
 	}
 	public void startDownload() throws IOException{
 		Socket socket;
@@ -57,15 +56,14 @@ public class HTTPDownloadThread implements Runnable{
 			e.printStackTrace();
 		}
 		String tmp = null;
-		int length = 0;
+		int length = -1;
 		try {
 			while(true){
 				while(!br.ready());
 				tmp = br.readLine();
-				System.out.println(tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
-				}else if(tmp.length()<=1){
+				}else if(tmp.length()==0){
 					break;
 				}else{
 					continue;
@@ -74,18 +72,27 @@ public class HTTPDownloadThread implements Runnable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		inputByteArray = new byte[length];
-		System.out.println("Total length Waiting: " + length);
-		for(int i=0; i<inputByteArray.length; i++){
-			inputByteArray[i] = (byte) is.read();
-			System.out.print("|");
-			if(inputByteArray[i] == -1){
-				socket.close();
-				System.out.println("failed");
-				this.collector.registerForFailure(this);
-				return;
+		if(length == -1){
+			socket.close();
+			System.out.println("failed due to no length.");
+			return;
+		}
+		inputByteArray = new char[length];
+		int current_loc = 0;
+		int out;
+		while(true){
+			 out = br.read();
+			if(out == -1){
+				break;
+			}else{
+				inputByteArray[current_loc++] = (char) out;
+				System.out.print((current_loc+1) %1024 == 0 ? "|" : "");
 			}
-				
+		}
+		if(current_loc != length){
+			System.out.println("ERROR, current_loc: "+current_loc);
+		}else{
+			System.out.println("Great, current_loc: "+current_loc);
 		}
 		socket.close();
 		String tmp_0 =this.request.getHeaderValueByKey("Range");
