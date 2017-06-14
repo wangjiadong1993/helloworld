@@ -15,9 +15,9 @@ import jiadong.utils.HttpUtil;
 import jiadong.workers.Request;
 
 public class HTTPDownloader implements Service, Collector {
-	private static final int THREAD_MAX_COUNT = 10;
+	private static final int THREAD_MAX_COUNT = 50;
 	private static final int CHUNK_SIZE = 1024;
-	private File outputFile;
+	private FileOutputStream outputFile;
 	private long _download_point = 0;
 	private long _request_point = 0;
 	private long _data_length = -1;
@@ -28,10 +28,9 @@ public class HTTPDownloader implements Service, Collector {
 	private Request request;
 	private PriorityQueue<DownloadChunk> chunkQueue; 
 	private DownloadStatus status = DownloadStatus.NONE;
-	public HTTPDownloader(String outputFile, int threadCount, String url){
-		this.outputFile = new File(outputFile);
+	public HTTPDownloader(String outputFile, int threadCount, String url) throws FileNotFoundException{
+		this.outputFile = new FileOutputStream(new File(outputFile));
 		this.threadCount = threadCount;
-		
 		Request testForLength = new Request(url, "HEAD");
 		try {
 			this._data_length = HttpUtil.getLengthUsingHeader(testForLength.host, Integer.parseInt(testForLength.port), testForLength.getCompiledRequest());
@@ -40,9 +39,7 @@ public class HTTPDownloader implements Service, Collector {
 		}
 		System.out.println("The Data Length is: " + this._data_length);
 		this.request = new Request(url, "GET");
-		
 		this.threadCount = threadCount <= 1 ? 1 : (threadCount <= THREAD_MAX_COUNT ? threadCount : THREAD_MAX_COUNT);
-		
 		chunkQueue = new PriorityQueue<>(1, new Comparator<DownloadChunk>(){
 			@Override
 			public int compare(DownloadChunk o1, DownloadChunk o2) {
@@ -56,27 +53,43 @@ public class HTTPDownloader implements Service, Collector {
 	}
 	public void startDownloadTask(){
 		HTTPDownloadThread httpDownloadThread;
+		Request req;
 		for(int i=1; i<=threadCount; i++){
-			this.request.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE-1));
+			req = new Request(this.request.uri, this.request.requestMethod);
+			req.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE-1));
 			this._request_point += CHUNK_SIZE;
-			httpDownloadThread = new HTTPDownloadThread(this.request, this);
+			httpDownloadThread = new HTTPDownloadThread(req, this);
 			workerQueue.add(httpDownloadThread);
 			(new Thread(httpDownloadThread)).start();
 		}
 		while(this._data_length == -1 ? (!this._data_terminal_detected) : this._data_length >= this._request_point){
-			while(this.idelRegistry.isEmpty()){
+			if(this.idelRegistry.isEmpty()){
+				synchronized(this.idelRegistry){
+					try {
+						this.idelRegistry.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			httpDownloadThread = this.idelRegistry.remove(0);
+			httpDownloadThread.getRequest().setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE-1));
+			this._request_point += CHUNK_SIZE;
+			(new Thread(httpDownloadThread)).start();
+		}
+		while(true){
+			synchronized(this.idelRegistry){
+				if(this.idelRegistry.size() == this.threadCount){
+					break;
+				}
 				try {
-					Thread.sleep(10);
+					this.idelRegistry.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			HTTPDownloadThread h = this.idelRegistry.remove(0);
-			this.request.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE-1));
-			this._request_point += CHUNK_SIZE;
-			h.setRequest(this.request);
-			(new Thread(h)).start();
 		}
+		forceWriteToFile();
 	}
 	public DownloadStatus getStatus(){
 		return this.status;
@@ -86,22 +99,44 @@ public class HTTPDownloader implements Service, Collector {
 		Request r = chunkQueue.peek().request;
 		String range = r.getHeaderValueByKey("Range");
 		if(range.startsWith("Bytes="+this._download_point+"-")){
-			chunkQueue.poll();
-			writeToFile(this.outputFile, chunkQueue.poll().chunk);
+			System.out.println("Successfully Write to File at " + this._download_point);
+			writeToFile(chunkQueue.poll().chunk);
 			this._download_point += CHUNK_SIZE;
+			try{
+				System.out.println("Next peek is: "+this.chunkQueue.peek().request.getHeaderValueByKey("Range") + " Download Point : "+this._download_point);
+			}catch(NullPointerException e){
+				System.out.println("Completed");
+			}
 			tryWrite();
 		}else{
 			return ;
 		}
 	}
-	private synchronized void writeToFile(File f, byte[] data) {
-		FileOutputStream fos;
+	private synchronized void writeToFile(byte[] data) {
 		try {
-			fos = new FileOutputStream(f);
-			fos.write(data, 0, data.length);
-			fos.close();
-		} catch (FileNotFoundException e) {
+			this.outputFile.write(data);
+			this.outputFile.flush();
+		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	private void forceWriteToFile(){
+		String range;
+		for(long i=this._download_point; i<this._data_length; i+=CHUNK_SIZE){
+			if(this.chunkQueue.isEmpty()) {
+				System.out.println("Data Empty!");
+				break;
+			}
+			range = this.chunkQueue.peek().request.getHeaderValueByKey("Range");
+			if(range.startsWith("Bytes="+i+"-")){
+				this.writeToFile(this.chunkQueue.poll().chunk);
+			}else{
+				System.out.println("Data Lost at "+i+"!");
+				break;
+			}
+		}
+		try {
+			this.outputFile.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -114,6 +149,15 @@ public class HTTPDownloader implements Service, Collector {
 
 	@Override
 	public synchronized void register(HTTPDownloadThread downloader) {
-		idelRegistry.add(downloader);
+		synchronized(this.idelRegistry){
+			idelRegistry.add(downloader);
+			idelRegistry.notify();
+		}
+		
+	}
+	@Override
+	public void registerForFailure(HTTPDownloadThread downloader) {
+		System.out.println("Error on: " + downloader.getRequest().getHeaderValueByKey("Range"));
+		(new Thread(downloader)).start();
 	}
 }

@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-
-import jiadong.managers.LoggingManager;
 import jiadong.workers.Request;
 
 public class HTTPDownloadThread implements Runnable{
@@ -26,6 +24,7 @@ public class HTTPDownloadThread implements Runnable{
 		inputByteArray = null;
 		this.status = DownloadStatus.INITIALIZED;
 	}
+	public Request getRequest(){return this.request;}
 	@Override
 	public void run() {
 		try {
@@ -53,7 +52,6 @@ public class HTTPDownloadThread implements Runnable{
 		}
 		try {
 			String tmp = this.request.getCompiledRequest();
-//			System.out.println(tmp);
 			os.write(tmp.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -64,12 +62,10 @@ public class HTTPDownloadThread implements Runnable{
 			while(true){
 				while(!br.ready());
 				tmp = br.readLine();
-//				System.out.println(tmp);
+				System.out.println(tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
-//					System.out.println(length);
-					break;
-				}else if(tmp.equals("\r\n")){
+				}else if(tmp.length()<=1){
 					break;
 				}else{
 					continue;
@@ -79,11 +75,25 @@ public class HTTPDownloadThread implements Runnable{
 			e.printStackTrace();
 		}
 		inputByteArray = new byte[length];
-		is.read(inputByteArray);
+		System.out.println("Total length Waiting: " + length);
+		for(int i=0; i<inputByteArray.length; i++){
+			inputByteArray[i] = (byte) is.read();
+			System.out.print("|");
+			if(inputByteArray[i] == -1){
+				socket.close();
+				System.out.println("failed");
+				this.collector.registerForFailure(this);
+				return;
+			}
+				
+		}
 		socket.close();
+		String tmp_0 =this.request.getHeaderValueByKey("Range");
+		String tmp_1 = tmp_0.substring(tmp_0.indexOf('-')+1);
+		tmp_0 = tmp_0.substring(tmp_0.indexOf('=')+1, tmp_0.indexOf('-'));
+		System.out.println("Data Finished: " + Integer.parseInt(tmp_0)/(Integer.parseInt(tmp_1)- Integer.parseInt(tmp_0) + 1));
 		collector.sendData(this.request, this.inputByteArray);
 		this.status = DownloadStatus.NONE;
-		this.request= null;
 		collector.register(this);
 	}
 

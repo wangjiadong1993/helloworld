@@ -23,7 +23,6 @@ public class HttpUtil {
 			while(true){
 				while(!br.ready());
 				tmp = br.readLine();
-				System.out.println(tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Long.parseLong(tmp.substring(tmp.indexOf(" ")+1));
 					socket.close();
