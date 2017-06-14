@@ -53,6 +53,7 @@ public class HTTPDownloadThread implements Runnable{
 		}
 		try {
 			String tmp = this.request.getCompiledRequest();
+			System.out.println(tmp);
 			os.write(tmp.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -63,7 +64,7 @@ public class HTTPDownloadThread implements Runnable{
 			while(true){
 				while(!br.ready());
 				tmp = br.readLine();
-//				System.out.println(tmp);
+				System.out.print(tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
 				}else if(tmp.equals("\r\n")){

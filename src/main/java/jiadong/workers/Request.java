@@ -137,7 +137,7 @@ public class Request {
 		
 		this.connection = "keep-alive";
 		this.origin = "";
-		this.userAgent = "HTTP";
+		this.userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.86 Safari/537.36";
 		this.contentType = "*/*";
 		this.accept = "*/*";
 		this.contentLength = String.valueOf(msg.length());
@@ -284,6 +284,7 @@ public class Request {
 		this.headerStr += ("Accept: "+this.accept + "\r\n");
 		this.headerStr += ("User-Agent: "+this.userAgent + "\r\n");
 		this.headerStr += ("Content-Type: "+this.contentType + "\r\n");
+//		this.headerStr += ("Accept-Language: en-US,en;q=0.8,zh-CN;q=0.6,zh-TW;q=0.4\r\n");
 		this.headerStr += ("Content-Length: "+this.contentLength + "\r\n");
 		for(Entry<String, String> e : this.headerFields.entrySet()){
 			this.headerStr += (e.getKey() + e.getValue() + "\r\n");

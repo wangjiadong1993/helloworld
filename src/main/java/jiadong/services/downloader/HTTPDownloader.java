@@ -24,7 +24,7 @@ public class HTTPDownloader implements Service, Collector {
 	private boolean _data_terminal_detected = false;
 	private List<HTTPDownloadThread> workerQueue = new ArrayList<>();
 	private List<HTTPDownloadThread> idelRegistry = new ArrayList<>();
-	private int threadCount = 5;
+	private int threadCount = 1;
 	private Request request;
 	private PriorityQueue<DownloadChunk> chunkQueue; 
 	private DownloadStatus status = DownloadStatus.NONE;
@@ -57,7 +57,7 @@ public class HTTPDownloader implements Service, Collector {
 	public void startDownloadTask(){
 		HTTPDownloadThread httpDownloadThread;
 		for(int i=1; i<=threadCount; i++){
-			this.request.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE));
+			this.request.setHeader("Range: ", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE));
 			this._request_point += CHUNK_SIZE;
 			httpDownloadThread = new HTTPDownloadThread(this.request, this);
 			workerQueue.add(httpDownloadThread);
@@ -68,7 +68,7 @@ public class HTTPDownloader implements Service, Collector {
 				;
 			}
 			HTTPDownloadThread h = this.idelRegistry.remove(0);
-			this.request.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE));
+			this.request.setHeader("Range: ", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE));
 			this._request_point += CHUNK_SIZE;
 			h.setRequest(this.request);
 			(new Thread(h)).start();
