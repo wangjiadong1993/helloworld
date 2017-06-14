@@ -64,9 +64,11 @@ public class HTTPDownloadThread implements Runnable{
 			while(true){
 				while(!br.ready());
 				tmp = br.readLine();
-				System.out.print(tmp);
+				System.out.println(tmp);
 				if(tmp.startsWith("Content-Length")){
 					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
+					System.out.println(length);
+					break;
 				}else if(tmp.equals("\r\n")){
 					break;
 				}else{

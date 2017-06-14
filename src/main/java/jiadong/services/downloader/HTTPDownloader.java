@@ -57,18 +57,22 @@ public class HTTPDownloader implements Service, Collector {
 	public void startDownloadTask(){
 		HTTPDownloadThread httpDownloadThread;
 		for(int i=1; i<=threadCount; i++){
-			this.request.setHeader("Range: ", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE));
+			this.request.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE-1));
 			this._request_point += CHUNK_SIZE;
 			httpDownloadThread = new HTTPDownloadThread(this.request, this);
 			workerQueue.add(httpDownloadThread);
-			idelRegistry.add(httpDownloadThread);
+			(new Thread(httpDownloadThread)).start();
 		}
 		while(this._data_length == -1 ? (!this._data_terminal_detected) : this._data_length >= this._request_point){
 			while(this.idelRegistry.isEmpty()){
-				;
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 			HTTPDownloadThread h = this.idelRegistry.remove(0);
-			this.request.setHeader("Range: ", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE));
+			this.request.setHeader("Range", "Bytes="+this._request_point + "-"+(this._request_point+CHUNK_SIZE-1));
 			this._request_point += CHUNK_SIZE;
 			h.setRequest(this.request);
 			(new Thread(h)).start();
@@ -79,7 +83,9 @@ public class HTTPDownloader implements Service, Collector {
 	}
 	private synchronized void tryWrite(){
 		if(chunkQueue.isEmpty()) return;
-		if(chunkQueue.peek().request.getHeaderValueByKey("Range").startsWith(""+this._download_point+"-")){
+		Request r = chunkQueue.peek().request;
+		String range = r.getHeaderValueByKey("Range");
+		if(range.startsWith("Bytes="+this._download_point+"-")){
 			writeToFile(this.outputFile, chunkQueue.poll().chunk);
 			this._download_point += CHUNK_SIZE;
 			tryWrite();

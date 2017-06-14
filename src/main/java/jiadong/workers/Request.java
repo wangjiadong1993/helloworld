@@ -287,7 +287,7 @@ public class Request {
 //		this.headerStr += ("Accept-Language: en-US,en;q=0.8,zh-CN;q=0.6,zh-TW;q=0.4\r\n");
 		this.headerStr += ("Content-Length: "+this.contentLength + "\r\n");
 		for(Entry<String, String> e : this.headerFields.entrySet()){
-			this.headerStr += (e.getKey() + e.getValue() + "\r\n");
+			this.headerStr += (e.getKey()+": " + e.getValue() + "\r\n");
 		}
 		this.headerStr += "\r\n";
 		return this.headerStr;
