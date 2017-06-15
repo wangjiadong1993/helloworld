@@ -69,7 +69,6 @@ public class HTTPDownloadThread implements Runnable{
 				for(int i=0;i<tmp_int; i++){
 					bufferLinkedList.add(new Byte(buffer[i]));
 				}
-				
 				if(tmp_int != maxLeng){
 					if(header == null){
 						int tmp = getHeaderEnd(bufferLinkedList);
