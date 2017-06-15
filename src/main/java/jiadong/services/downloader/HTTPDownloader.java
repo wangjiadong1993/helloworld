@@ -15,7 +15,7 @@ import jiadong.workers.Request;
 
 public class HTTPDownloader implements Service, Collector {
 	private static final int THREAD_MAX_COUNT = 50;
-	private static final int CHUNK_SIZE = 1024*1024;
+	private static final int CHUNK_SIZE = 1024*10;
 	private FileOutputStream outputFile;
 	private long _download_point = 0;
 	private long _request_point = 0;

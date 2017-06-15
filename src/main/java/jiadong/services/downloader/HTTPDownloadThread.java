@@ -3,9 +3,10 @@ package jiadong.services.downloader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.ArrayList;
-
+import java.util.List;
 
 import jiadong.workers.Request;
 
@@ -56,50 +57,86 @@ public class HTTPDownloadThread implements Runnable{
 		int tmp_int = 0;
 		int maxLeng = 1024;
 		byte[] buffer = new byte[maxLeng];
-		ArrayList<Byte>  bufferLinkedList = new ArrayList<>();
+		List<Byte>  bufferLinkedList = new ArrayList<>();
+		String header = null;
+		int headerContentLength=-1;
 		try {
 			System.out.println("=======Start==================");
 			while((tmp_int = is.read(buffer)) != -1){
-				System.out.println("read: " + tmp_int +" bytes.");
+				
+//				reading the data into arrayList;
+				System.out.println(" "+System.currentTimeMillis() + " read: " + tmp_int +" bytes.");
 				for(int i=0;i<tmp_int; i++){
 					bufferLinkedList.add(new Byte(buffer[i]));
+				}
+				
+				if(tmp_int != maxLeng){
+					if(header == null){
+						int tmp = getHeaderEnd(bufferLinkedList);
+						if(tmp == -1){
+							continue;
+						}else{
+							header = this.getHeaderString(bufferLinkedList.subList(0, tmp));
+							bufferLinkedList = bufferLinkedList.subList(tmp, bufferLinkedList.size());
+							headerContentLength = this.getHeaderContentLength(header);
+							if(headerContentLength == bufferLinkedList.size()){
+								break;
+							}else{
+								continue;
+							}
+						}
+					}else{
+						if(headerContentLength == bufferLinkedList.size()){
+							break;
+						}else{
+							continue;
+						}
+					}
 				}
 			}
 			System.out.println("=======End==================");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		int i=0;
-		buffer = new byte[bufferLinkedList.size()];
-		for(i=0; i< bufferLinkedList.size()-3; i++){	
-			if(bufferLinkedList.get(i).intValue() == ('\r'-0) && 
-				bufferLinkedList.get(i+1).intValue() == ('\n'-0) &&
-				bufferLinkedList.get(i+2).intValue() == ('\r'-0) &&
-				bufferLinkedList.get(i+3).intValue() == ('\n'-0)){
-				break;
-			}
-			buffer[i] = bufferLinkedList.get(i);
-		}
-		buffer[i+1] = bufferLinkedList.get(i+1);
-		buffer[i+2] = bufferLinkedList.get(i+2);
-		buffer[i+3] = bufferLinkedList.get(i+3);
-		String header = new String(buffer,0, i+4 , "ISO-8859-1");
-		int index = header.indexOf("Content-Range:");
-		if(index != -1 && index == bufferLinkedList.size() - (i+4)){
-			int j=i+4;
-			buffer = new byte[bufferLinkedList.size() - (i+4)];
-			while(j<bufferLinkedList.size()){
-				buffer[j-i-4] = bufferLinkedList.get(j);
-				j++;
-			}
-			System.out.println(bufferLinkedList.size() - (i+4));
-			this.collector.sendData(this.request, buffer);
+		if(bufferLinkedList.size() == headerContentLength){
+			this.collector.sendData(this.request, byteListToArray(bufferLinkedList));
 		}else{
 //			register as bad;
 		}
 		socket.close();
 		this.status = DownloadStatus.NONE;
 		collector.register(this);
+	}
+	private int getHeaderEnd(List<Byte>  byteList){
+		for(int i=0; i< byteList.size()-3; i++){	
+			if(byteList.get(i).intValue() == ('\r'-0) && 
+				byteList.get(i+1).intValue() == ('\n'-0) &&
+				byteList.get(i+2).intValue() == ('\r'-0) &&
+				byteList.get(i+3).intValue() == ('\n'-0)){
+				return i+4;
+			}
+		}
+		return -1;
+	}
+	private byte[] byteListToArray(List<Byte>  byteList){
+		byte[] tmp = new byte[byteList.size()];
+		for(int i=0; i<tmp.length; i++)
+			tmp[i] = byteList.get(i);
+		return tmp;
+	}
+	private String getHeaderString(List<Byte>  bufferLinkedList){
+		byte[] tmp = byteListToArray(bufferLinkedList);
+		try {
+			return new String(tmp,0, tmp.length , "ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			return "";
+		}
+	}
+	private int getHeaderContentLength(String header){
+		int contentLengthIndex = header.indexOf("Content-Length:");
+		String subString = header.substring(contentLengthIndex);
+		subString = subString.substring(subString.indexOf(' ')+1, subString.indexOf('\r'));
+		return Integer.parseInt(subString);
 	}
 
 }
