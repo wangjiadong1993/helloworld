@@ -7,9 +7,9 @@ import jiadong.managers.*;
 import jiadong.plugins.portListeners.http.ClientThread;
 import jiadong.plugins.portListeners.http.RoutingWorker;
 import jiadong.plugins.portListeners.http.mvc.ControllerManager;
-import jiadong.workers.PortListener;
-import jiadong.workers.Request;
-import jiadong.workers.Response;
+import jiadong.workers.network.PortListener;
+import jiadong.workers.network.Request;
+import jiadong.workers.network.Response;
 
 public class HttpPortListener extends PortListener {
 	private Thread listenThread;

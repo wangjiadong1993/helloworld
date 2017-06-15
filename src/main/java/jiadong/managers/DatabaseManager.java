@@ -8,7 +8,8 @@ import java.util.HashMap;
 
 import jiadong.utils.FileUtil;
 import jiadong.utils.JsonUtil;
-import jiadong.workers.DatabaseAdaptor;
+import jiadong.workers.database.DatabaseAdaptor;
+
 import static jiadong.managers.ResourceManager.DATABASE_PLUGIN_PACKAGE_NAME;
 
 public class DatabaseManager implements Serializable{

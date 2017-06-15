@@ -7,16 +7,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import jiadong.workers.network.Request;
+
 public class HttpUtil {
-	/*
-	 * request is compiled Request, with Request Method as Header
-	 */
-	public static long getLengthUsingHeader(String ipAddress, int port, String request) throws IOException{
-		Socket socket = new Socket(ipAddress, port);
+	public static long getLengthUsingHeader(Request request) throws IOException{
+		Socket socket = request.getSocket();
 		InputStream is = socket.getInputStream();
 		OutputStream os = socket.getOutputStream();
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		os.write(request.getBytes(), 0, request.length());
+		String tmpStr = request.getCompiledRequest();
+		os.write(tmpStr.getBytes(), 0, tmpStr.length());
 		String tmp = null;
 		long length = 0;
 		try {

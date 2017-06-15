@@ -11,8 +11,8 @@ import java.util.ArrayList;
 
 import jiadong.managers.LoggingManager;
 import jiadong.plugins.portListeners.HttpPortListener;
-import jiadong.workers.Request;
-import jiadong.workers.Response;
+import jiadong.workers.network.Request;
+import jiadong.workers.network.Response;
 public class ClientThread extends Thread {
 
 	//Socket Handler

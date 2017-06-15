@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import jiadong.managers.LoggingManager;
-import jiadong.workers.Request;
-import jiadong.workers.Response;
+import jiadong.workers.network.Request;
+import jiadong.workers.network.Response;
 
 
 public class ControllerManager {

@@ -8,7 +8,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import jiadong.workers.Request;
+import javax.net.ssl.SSLSocketFactory;
+
+import jiadong.workers.network.Request;
 
 public class HTTPDownloadThread implements Runnable{
 	private Request request;
@@ -39,14 +41,17 @@ public class HTTPDownloadThread implements Runnable{
 		OutputStream os;
 		InputStream is;
 		this.status = DownloadStatus.DOWNLOADING;
-		try {
+		if(this.request.protocolType.equals("HTTP")){
+			System.setProperty("javax.net.ssl.trustStore", "clienttrust");
+			SSLSocketFactory ssf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+			socket = ssf.createSocket(this.request.host, Integer.parseInt(this.request.port));
+		}else if(this.request.protocolType.equals("HTTPS")){
 			socket = new Socket(this.request.host, Integer.parseInt(this.request.port));
-			os = socket.getOutputStream();
-			is = socket.getInputStream();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
+		}else{
+			return;
 		}
+		os = socket.getOutputStream();
+		is = socket.getInputStream();
 		try {
 			String tmp = this.request.getCompiledRequest();
 			os.write(tmp.getBytes());
@@ -61,7 +66,7 @@ public class HTTPDownloadThread implements Runnable{
 		String header = null;
 		int headerContentLength=-1;
 		try {
-			System.out.println("=======Start==================");
+//			System.out.println("=======Start==================");
 			while((tmp_int = is.read(buffer)) != -1){
 				
 //				reading the data into arrayList;
@@ -93,7 +98,7 @@ public class HTTPDownloadThread implements Runnable{
 					}
 				}
 			}
-			System.out.println("=======End==================");
+//			System.out.println("=======End==================");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

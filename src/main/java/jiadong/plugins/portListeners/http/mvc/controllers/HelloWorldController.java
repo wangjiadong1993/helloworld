@@ -4,7 +4,7 @@ import java.util.List;
 import jiadong.managers.LoggingManager;
 import jiadong.plugins.portListeners.http.mvc.Controller;
 import jiadong.plugins.portListeners.http.mvc.models.Person;
-import jiadong.workers.Response;
+import jiadong.workers.network.Response;
 
 
 public class HelloWorldController extends Controller{

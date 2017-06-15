@@ -1,7 +1,7 @@
 package jiadong.plugins.portListeners.http;
 import jiadong.utils.FileUtil;
-import jiadong.workers.Request;
-import jiadong.workers.Response;
+import jiadong.workers.network.Request;
+import jiadong.workers.network.Response;
 
 public class ResourceWorker {
 	private static ResourceWorker resourceWorker;

@@ -13,8 +13,9 @@ import java.util.stream.Collectors;
 
 import jiadong.managers.DatabaseManager;
 import jiadong.managers.LoggingManager;
-import jiadong.workers.DatabaseAdaptor;
-import jiadong.workers.MinimisedObject;
+import jiadong.workers.database.DatabaseAdaptor;
+import jiadong.workers.database.MinimisedObject;
+
 import static jiadong.managers.ResourceManager.BASE_DIR;
 
 public abstract class Model<T extends Model<T>> implements Serializable {

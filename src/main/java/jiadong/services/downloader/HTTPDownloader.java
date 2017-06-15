@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
 
 import jiadong.services.Service;
 import jiadong.utils.HttpUtil;
-import jiadong.workers.Request;
+import jiadong.workers.network.Request;
 
 public class HTTPDownloader implements Service, Collector {
 	private static final int THREAD_MAX_COUNT = 50;
@@ -32,7 +32,7 @@ public class HTTPDownloader implements Service, Collector {
 		this.threadCount = threadCount;
 		Request testForLength = new Request(url, "HEAD");
 		try {
-			this._data_length = HttpUtil.getLengthUsingHeader(testForLength.host, Integer.parseInt(testForLength.port), testForLength.getCompiledRequest());
+			this._data_length = HttpUtil.getLengthUsingHeader(testForLength);
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}

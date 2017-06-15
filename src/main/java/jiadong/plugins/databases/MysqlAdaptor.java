@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import jiadong.managers.LoggingManager;
 import jiadong.utils.FileUtil;
 import jiadong.utils.JsonUtil;
-import jiadong.workers.DatabaseAdaptor;
-import jiadong.workers.MinimisedObject;
+import jiadong.workers.database.DatabaseAdaptor;
+import jiadong.workers.database.MinimisedObject;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 
