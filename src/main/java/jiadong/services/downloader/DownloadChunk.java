@@ -4,8 +4,8 @@ import jiadong.workers.Request;
 
 public class DownloadChunk {
 	public final Request request;
-	public final char[] chunk;
-	DownloadChunk(Request r, char[] c){
+	public final byte[] chunk;
+	DownloadChunk(Request r, byte[] c){
 		this.request = r;
 		this.chunk = c;
 	}

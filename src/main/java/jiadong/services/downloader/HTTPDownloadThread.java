@@ -1,15 +1,15 @@
 package jiadong.services.downloader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+
+
 import jiadong.workers.Request;
 
 public class HTTPDownloadThread implements Runnable{
-	private char[] inputByteArray;
 	private Request request;
 	private Collector collector;
 	private DownloadStatus status = DownloadStatus.NONE;
@@ -21,7 +21,6 @@ public class HTTPDownloadThread implements Runnable{
 	}
 	public void setRequest(Request r){
 		this.request = r;
-		inputByteArray = null;
 		this.status = DownloadStatus.INITIALIZED;
 	}
 	public Request getRequest(){return this.request;}
@@ -38,13 +37,11 @@ public class HTTPDownloadThread implements Runnable{
 		Socket socket;
 		OutputStream os;
 		InputStream is;
-		BufferedReader br;
 		this.status = DownloadStatus.DOWNLOADING;
 		try {
 			socket = new Socket(this.request.host, Integer.parseInt(this.request.port));
 			os = socket.getOutputStream();
 			is = socket.getInputStream();
-			br = new BufferedReader(new InputStreamReader(is));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
@@ -52,54 +49,55 @@ public class HTTPDownloadThread implements Runnable{
 		try {
 			String tmp = this.request.getCompiledRequest();
 			os.write(tmp.getBytes());
+			os.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String tmp = null;
-		int length = -1;
+		int tmp_int = 0;
+		int maxLeng = 1024;
+		byte[] buffer = new byte[maxLeng];
+		ArrayList<Byte>  bufferLinkedList = new ArrayList<>();
 		try {
-			while(true){
-				while(!br.ready());
-				tmp = br.readLine();
-				if(tmp.startsWith("Content-Length")){
-					length = Integer.parseInt(tmp.substring(tmp.indexOf(" ")+1));
-				}else if(tmp.length()==0){
-					break;
-				}else{
-					continue;
+			System.out.println("=======Start==================");
+			while((tmp_int = is.read(buffer)) != -1){
+				System.out.println("read: " + tmp_int +" bytes.");
+				for(int i=0;i<tmp_int; i++){
+					bufferLinkedList.add(new Byte(buffer[i]));
 				}
 			}
+			System.out.println("=======End==================");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if(length == -1){
-			socket.close();
-			System.out.println("failed due to no length.");
-			return;
-		}
-		inputByteArray = new char[length];
-		int current_loc = 0;
-		int out;
-		while(true){
-			 out = br.read();
-			if(out == -1){
+		int i=0;
+		buffer = new byte[bufferLinkedList.size()];
+		for(i=0; i< bufferLinkedList.size()-3; i++){	
+			if(bufferLinkedList.get(i).intValue() == ('\r'-0) && 
+				bufferLinkedList.get(i+1).intValue() == ('\n'-0) &&
+				bufferLinkedList.get(i+2).intValue() == ('\r'-0) &&
+				bufferLinkedList.get(i+3).intValue() == ('\n'-0)){
 				break;
-			}else{
-				inputByteArray[current_loc++] = (char) out;
-				System.out.print((current_loc+1) %1024 == 0 ? "|" : "");
 			}
+			buffer[i] = bufferLinkedList.get(i);
 		}
-		if(current_loc != length){
-			System.out.println("ERROR, current_loc: "+current_loc);
+		buffer[i+1] = bufferLinkedList.get(i+1);
+		buffer[i+2] = bufferLinkedList.get(i+2);
+		buffer[i+3] = bufferLinkedList.get(i+3);
+		String header = new String(buffer,0, i+4 , "ISO-8859-1");
+		int index = header.indexOf("Content-Range:");
+		if(index != -1 && index == bufferLinkedList.size() - (i+4)){
+			int j=i+4;
+			buffer = new byte[bufferLinkedList.size() - (i+4)];
+			while(j<bufferLinkedList.size()){
+				buffer[j-i-4] = bufferLinkedList.get(j);
+				j++;
+			}
+			System.out.println(bufferLinkedList.size() - (i+4));
+			this.collector.sendData(this.request, buffer);
 		}else{
-			System.out.println("Great, current_loc: "+current_loc);
+//			register as bad;
 		}
 		socket.close();
-		String tmp_0 =this.request.getHeaderValueByKey("Range");
-		String tmp_1 = tmp_0.substring(tmp_0.indexOf('-')+1);
-		tmp_0 = tmp_0.substring(tmp_0.indexOf('=')+1, tmp_0.indexOf('-'));
-		System.out.println("Data Finished: " + Integer.parseInt(tmp_0)/(Integer.parseInt(tmp_1)- Integer.parseInt(tmp_0) + 1));
-		collector.sendData(this.request, this.inputByteArray);
 		this.status = DownloadStatus.NONE;
 		collector.register(this);
 	}

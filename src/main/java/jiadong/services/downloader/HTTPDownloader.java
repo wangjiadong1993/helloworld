@@ -2,9 +2,7 @@ package jiadong.services.downloader;
 
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,8 +15,8 @@ import jiadong.workers.Request;
 
 public class HTTPDownloader implements Service, Collector {
 	private static final int THREAD_MAX_COUNT = 50;
-	private static final int CHUNK_SIZE = 10240;
-	private FileWriter outputFile;
+	private static final int CHUNK_SIZE = 1024*1024;
+	private FileOutputStream outputFile;
 	private long _download_point = 0;
 	private long _request_point = 0;
 	private long _data_length = -1;
@@ -30,7 +28,7 @@ public class HTTPDownloader implements Service, Collector {
 	private PriorityQueue<DownloadChunk> chunkQueue; 
 	private DownloadStatus status = DownloadStatus.NONE;
 	public HTTPDownloader(String outputFile, int threadCount, String url) throws IOException{
-		this.outputFile = new FileWriter(new File(outputFile));
+		this.outputFile = new FileOutputStream(new File(outputFile));
 		this.threadCount = threadCount;
 		Request testForLength = new Request(url, "HEAD");
 		try {
@@ -62,6 +60,11 @@ public class HTTPDownloader implements Service, Collector {
 			httpDownloadThread = new HTTPDownloadThread(req, this);
 			workerQueue.add(httpDownloadThread);
 			(new Thread(httpDownloadThread)).start();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		while(this._data_length == -1 ? (!this._data_terminal_detected) : this._data_length >= this._request_point){
 			if(this.idelRegistry.isEmpty()){
@@ -113,7 +116,7 @@ public class HTTPDownloader implements Service, Collector {
 			return ;
 		}
 	}
-	private synchronized void writeToFile(char[] data) {
+	private synchronized void writeToFile(byte[] data) {
 		try {
 			this.outputFile.write(data);
 			this.outputFile.flush();
@@ -143,8 +146,9 @@ public class HTTPDownloader implements Service, Collector {
 		}
 	}
 	@Override
-	public synchronized void  sendData(Request r, char[] input) {
+	public synchronized void  sendData(Request r, byte[] input) {
 		this.chunkQueue.add(new DownloadChunk(r, input));
+		System.out.println(r.getHeaderValueByKey("Range"));
 		tryWrite();
 	}
 
@@ -154,7 +158,6 @@ public class HTTPDownloader implements Service, Collector {
 			idelRegistry.add(downloader);
 			idelRegistry.notify();
 		}
-		
 	}
 	@Override
 	public void registerForFailure(HTTPDownloadThread downloader) {
