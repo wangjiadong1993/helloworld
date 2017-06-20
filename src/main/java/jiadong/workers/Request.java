@@ -1,5 +1,8 @@
 package jiadong.workers;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -241,7 +244,6 @@ public class Request {
 		}catch(NullPointerException e){
 			;
 		}
-		
 		try{
 			for(String str : headerFields.get("Accept-Encoding").split(",\\s+")){
 				this.acceptEncoding.add(str);
@@ -249,7 +251,6 @@ public class Request {
 		}catch(NullPointerException e){
 			;
 		}
-		
 	}
 	/**
 	 * Another Constructor
@@ -294,5 +295,13 @@ public class Request {
 	}
 	public String getCompiledRequest(){
 		return compiledHeader() + this.messageStr;
+	}
+	
+	
+	/*
+	 * Integrate the socket inside request
+	 */
+	public Socket getSocket() throws NumberFormatException, UnknownHostException, IOException{
+		return new Socket(this.host, Integer.parseInt(this.port));
 	}
 }

@@ -2,8 +2,13 @@ package jiadong.workers;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Response {
 	private String headerLine;
@@ -16,6 +21,14 @@ public class Response {
 	private HashMap<String, String> extraHeaderFields;
 	private String compoundHeader;
 	private byte[] messageBody;
+	/**
+	 * Request's Response
+	 */
+	private ArrayList<String> acceptEncoding;
+	private ArrayList<String> acceptLanguage;
+	private String protocolType;
+	private String protocolVersion;
+	private int StatusCode;
 	/**
 	 * 
 	 * 
@@ -35,6 +48,7 @@ public class Response {
 				put(200, "OK");
 				put(201, "Created");
 				put(204, "No Content");
+				put(206, "Partial Content");
 				put(304, "Not Modified");
 				put(400, "Bad Request");
 				put(401, "Unautorized");
@@ -74,6 +88,55 @@ public class Response {
 		this.setMessage(message, messageType);
 	}
 	
+	public Response(String header, byte[] message){
+		this.messageBody = message;
+		this.extraHeaderFields  = new HashMap<>();
+		this.acceptEncoding = new ArrayList<>();
+		this.acceptLanguage = new ArrayList<>();
+		
+		//The HeaderLine GET HTTP/1.1
+		List<String> headers = Arrays.asList(header.split("\r\n"));
+		String requestLine = headers.remove(0);
+		String[] headerLineOutput = requestLine.split("\\s+");	
+		this.StatusCode = Integer.parseInt(headerLineOutput[1]);
+		headerLineOutput = headerLineOutput[0].split("/");
+		this.protocolType= headerLineOutput[0];
+		this.protocolVersion = headerLineOutput[1];
+		
+		//Get Generic Header Types
+		headers.forEach((str) -> {
+			Matcher m_ = Pattern.compile("^([^:]+):\\s+(.*)$").matcher(str);
+			m_.matches();
+			String key = m_.group(1);
+			String value = m_.group(2);
+			this.extraHeaderFields.put(key, value);
+		});
+		
+		//For some special Headers
+		this.server = extraHeaderFields.get("Server");
+//		this.timeStamp = (new ZonedDateTime()); extraHeaderFields.get("Connection");
+//		this.contentLength = extraHeaderFields.get("Origin");
+		this.contentType = extraHeaderFields.get("Content-Type");
+		this.connection = extraHeaderFields.get("Connection");
+		this.contentLength = new Integer(extraHeaderFields.get("Content-Length"));
+//		this.accept = extraHeaderFields.get("Accept");
+		
+		//For some listed headers
+		try{
+			for(String str : extraHeaderFields.get("Accept-Language").split(";")){
+				this.acceptLanguage.add(str);
+			}
+		}catch(NullPointerException e){
+			;
+		}
+		try{
+			for(String str : extraHeaderFields.get("Accept-Encoding").split(",\\s+")){
+				this.acceptEncoding.add(str);
+			}
+		}catch(NullPointerException e){
+			;
+		}
+	}
 	public void setMessage(byte[] msg, String msgType){
 		this.messageBody = msg;
 		this.contentType = msgType;
