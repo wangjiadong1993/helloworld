@@ -1,0 +1,6 @@
+Download Service
+Issue-1: If one chunk is lost, their should be merchanism to re-download it.
+Issue-2: If it is a HTML file, it should automatically ends when detects </HTML>
+Issue-3: Solve the waiting-for-the-end-and-hang problem of the socket.
+Issue-4: If the socket is terminated unitentionally, there should be some recovery merchanism.
+Issue-5: redirect problem.

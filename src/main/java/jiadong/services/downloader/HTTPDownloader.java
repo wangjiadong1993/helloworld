@@ -4,6 +4,7 @@ package jiadong.services.downloader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.PriorityQueue;
 import jiadong.services.Service;
 import jiadong.utils.HttpUtil;
 import jiadong.workers.Request;
+import jiadong.workers.SocketWorker;
 
 public class HTTPDownloader implements Service, Collector {
 	/**
@@ -21,7 +23,7 @@ public class HTTPDownloader implements Service, Collector {
 	/**
 	 * the size of each chunk.
 	 */
-	private static final int CHUNK_SIZE = 1024*1024*10;
+	private static int CHUNK_SIZE = 1024*1024*10;
 	/**
 	 * The output file.
 	 */
@@ -83,24 +85,47 @@ public class HTTPDownloader implements Service, Collector {
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("The Data Length is: " + this._data_length);
 		this.request = new Request(url, "GET");
-		this.threadCount = threadCount <= 1 ? 1 : (threadCount <= THREAD_MAX_COUNT ? threadCount : THREAD_MAX_COUNT);
-		chunkQueue = new PriorityQueue<>(1, new Comparator<DownloadChunk>(){
-			@Override
-			public int compare(DownloadChunk o1, DownloadChunk o2) {
-				String o1_range =  o1.request.getHeaderValueByKey("Range");
-				String o2_range =  o2.request.getHeaderValueByKey("Range");
-				o1_range = o1_range.substring(o1_range.indexOf('=')+1, o1_range.indexOf('-'));
-				o2_range = o2_range.substring(o2_range.indexOf('=')+1, o2_range.indexOf('-'));
-				return Integer.parseInt(o1_range) - Integer.parseInt(o2_range);
-			}
-		});
+		if(this._data_length == -1){
+			this.threadCount = 1;
+			CHUNK_SIZE = -1;
+		}else{
+			this.threadCount = threadCount <= 1 ? 1 : (threadCount <= THREAD_MAX_COUNT ? threadCount : THREAD_MAX_COUNT);
+			chunkQueue = new PriorityQueue<>(1, new Comparator<DownloadChunk>(){
+				@Override
+				public int compare(DownloadChunk o1, DownloadChunk o2) {
+					String o1_range =  o1.request.getHeaderValueByKey("Range");
+					String o2_range =  o2.request.getHeaderValueByKey("Range");
+					o1_range = o1_range.substring(o1_range.indexOf('=')+1, o1_range.indexOf('-'));
+					o2_range = o2_range.substring(o2_range.indexOf('=')+1, o2_range.indexOf('-'));
+					return Integer.parseInt(o1_range) - Integer.parseInt(o2_range);
+				}
+			});
+		}
 	}
 	/**
 	 * Main Downloading coordination code.
 	 */
 	public void startDownloadTask(){
+		if(CHUNK_SIZE == -1){
+			try {
+				SocketWorker sw = new SocketWorker(this.request.getSocket());
+				byte[] data = sw.readMessage();
+				outputFile.write(data);
+				outputFile.flush();
+				outputFile.close();
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return;
+		}
 		HTTPDownloadThread httpDownloadThread;
 		Request req;
 		for(int i=1; i<=threadCount; i++){
@@ -215,11 +240,22 @@ public class HTTPDownloader implements Service, Collector {
 	 */
 	@Override
 	public synchronized void  sendData(Request r, byte[] input) {
-		this.chunkQueue.add(new DownloadChunk(r, input));
-		System.out.println(r.getHeaderValueByKey("Range"));
+		/*
+		 *synchronized, because called from the thread 
+		 *added the received chunk into the priority queue
+		 */
+		synchronized(this.chunkQueue){
+			this.chunkQueue.add(new DownloadChunk(r, input));
+		}
+		/*
+		 * if the received is 0, it means there is no more data, and termination detected.
+		 */
 		if(input.length == 0){
 			this._data_terminal_detected = true;
 		}	
+		/*
+		 *try to write the received data into the file. 
+		 */
 		tryWrite();
 	}
 	/**
@@ -227,13 +263,23 @@ public class HTTPDownloader implements Service, Collector {
 	 */
 	@Override
 	public synchronized void register(HTTPDownloadThread downloader) {
+		/*
+		 * Synchronized because called from thread.
+		 */
 		synchronized(this.idelRegistry){
+			/*
+			 * add itself to the idel registry.
+			 */
 			idelRegistry.add(downloader);
+			/*
+			 * Notify the downloader, that there is a ideal thread.
+			 */
 			idelRegistry.notify();
 		}
 	}
 	/**
 	 * Where the sub-threads register for failure
+	 * TODO: haven't been fully implemented yet.
 	 */
 	@Override
 	public void registerForFailure(HTTPDownloadThread downloader) {
