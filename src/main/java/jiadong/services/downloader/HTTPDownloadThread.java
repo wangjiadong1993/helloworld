@@ -29,6 +29,11 @@ public class HTTPDownloadThread implements Runnable{
 			e.printStackTrace();
 		}
 	}
+	public void setStatus(DownloadStatus s){
+		synchronized(this.status){
+			this.status = s;
+		}
+	}
 	public boolean checkStatusIfTerminated(){
 		synchronized(this.status){
 			return this.status == DownloadStatus.TERMINATED;
@@ -40,24 +45,23 @@ public class HTTPDownloadThread implements Runnable{
 		}
 	}
 	public void startDownload() throws IOException{
-		while(!checkStatusIfTerminated()){
-			while(!checkStatusIfInitialized()){
-				;
+		while(!checkStatusIfTerminated()){			
+			if(checkStatusIfInitialized()){
+				SocketWorker sw = new SocketWorker(this.request.getSocket());
+				synchronized(this.status){
+					this.status = DownloadStatus.DOWNLOADING;
+				}
+				try {
+					sw.writeToOs(this.request.getCompiledRequest());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				collector.sendData(this.request, sw.readMessage());
+				synchronized(this.status){
+					this.status = DownloadStatus.NONE;
+				}
+				collector.register(this);
 			}
-			SocketWorker sw = new SocketWorker(this.request.getSocket());
-			synchronized(this.status){
-				this.status = DownloadStatus.DOWNLOADING;
-			}
-			try {
-				sw.writeToOs(this.request.getCompiledRequest());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			collector.sendData(this.request, sw.readMessage());
-			synchronized(this.status){
-				this.status = DownloadStatus.NONE;
-			}
-			collector.register(this);
 		}
 	}
 }

@@ -80,16 +80,13 @@ public class SocketWorker {
 		int headerContentLength=-1;
 		try {
 			while((tmp_int = is.read(buffer)) != -1){
-				for(int i=0;i<tmp_int; i++)
-					bufferLinkedList.add(new Byte(buffer[i]));
+				for(int i=0;i<tmp_int; i++) bufferLinkedList.add(new Byte(buffer[i]));
 				if(tmp_int != maxLeng){
 					if(header == null){
 						int tmp = getHeaderEnd(bufferLinkedList);
-						if(tmp == -1){
-							continue;
+						if(tmp == -1){ continue;
 						}else{
-							if(headerOnly)
-								return byteListToArray(bufferLinkedList.subList(0, tmp));
+							if(headerOnly)  return byteListToArray(bufferLinkedList.subList(0, tmp));
 							header = this.getHeaderString(bufferLinkedList.subList(0, tmp));
 							bufferLinkedList = bufferLinkedList.subList(tmp, bufferLinkedList.size());
 							headerContentLength = this.getHeaderContentLength(header);
@@ -100,18 +97,15 @@ public class SocketWorker {
 							}
 						}
 					}else{
-						if(headerContentLength == bufferLinkedList.size()){
-							break;
-						}else{
-							continue;
-						}
+						if(headerContentLength == bufferLinkedList.size()){ break; } else { continue; }
 					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if(bufferLinkedList.size() == headerContentLength){
+		if(bufferLinkedList.size() == headerContentLength ||  headerContentLength == -1){
+			System.out.println("Size is: " + bufferLinkedList.size());
 			if(withHeader){
 				return new Response(header, byteListToArray(bufferLinkedList));
 			}else{
