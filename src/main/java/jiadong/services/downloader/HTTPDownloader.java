@@ -67,6 +67,13 @@ public class HTTPDownloader implements Service, Collector {
 	 * 
 	 */
 	private DownloadStatus status = DownloadStatus.NONE;
+	/**
+	 * Constructor
+	 * @param outputFile
+	 * @param threadCount
+	 * @param url
+	 * @throws IOException
+	 */
 	public HTTPDownloader(String outputFile, int threadCount, String url) throws IOException{
 		this.outputFile = new FileOutputStream(new File(outputFile));
 		this.threadCount = threadCount;
@@ -90,6 +97,9 @@ public class HTTPDownloader implements Service, Collector {
 			}
 		});
 	}
+	/**
+	 * Main Downloading coordination code.
+	 */
 	public void startDownloadTask(){
 		HTTPDownloadThread httpDownloadThread;
 		Request req;
@@ -143,6 +153,9 @@ public class HTTPDownloader implements Service, Collector {
 	public DownloadStatus getStatus(){
 		return this.status;
 	}
+	/**
+	 * Try to write to file if there is chunk available to write.
+	 */
 	private synchronized void tryWrite(){
 		if(chunkQueue.isEmpty()) return;
 		Request r = chunkQueue.peek().request;
@@ -161,6 +174,10 @@ public class HTTPDownloader implements Service, Collector {
 			return ;
 		}
 	}
+	/**
+	 * 
+	 * Write to File.
+	 */
 	private synchronized void writeToFile(byte[] data) {
 		try {
 			this.outputFile.write(data);
@@ -169,6 +186,9 @@ public class HTTPDownloader implements Service, Collector {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Finally push all data into the file.
+	 */
 	private void forceWriteToFile(){
 		String range;
 		for(long i=this._download_point; i<this._data_length; i+=CHUNK_SIZE){
@@ -190,6 +210,9 @@ public class HTTPDownloader implements Service, Collector {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Where the sub-threads push the downloaded data.
+	 */
 	@Override
 	public synchronized void  sendData(Request r, byte[] input) {
 		this.chunkQueue.add(new DownloadChunk(r, input));
@@ -199,7 +222,9 @@ public class HTTPDownloader implements Service, Collector {
 		}	
 		tryWrite();
 	}
-
+	/**
+	 * Where the sub-threads register themselves
+	 */
 	@Override
 	public synchronized void register(HTTPDownloadThread downloader) {
 		synchronized(this.idelRegistry){
@@ -207,6 +232,9 @@ public class HTTPDownloader implements Service, Collector {
 			idelRegistry.notify();
 		}
 	}
+	/**
+	 * Where the sub-threads register for failure
+	 */
 	@Override
 	public void registerForFailure(HTTPDownloadThread downloader) {
 		System.out.println("Error on: " + downloader.getRequest().getHeaderValueByKey("Range"));
