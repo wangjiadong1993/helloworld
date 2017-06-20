@@ -32,7 +32,7 @@ public class HTTPDownloader implements Service, Collector {
 		this.threadCount = threadCount;
 		Request testForLength = new Request(url, "HEAD");
 		try {
-			this._data_length = HttpUtil.getLengthUsingHeader(testForLength.host, Integer.parseInt(testForLength.port), testForLength.getCompiledRequest());
+			this._data_length = HttpUtil.getLengthUsingHeader(testForLength);
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}

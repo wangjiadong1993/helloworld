@@ -1,12 +1,6 @@
 package jiadong.services.downloader;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 import jiadong.workers.Request;
 import jiadong.workers.SocketWorker;
@@ -35,16 +29,35 @@ public class HTTPDownloadThread implements Runnable{
 			e.printStackTrace();
 		}
 	}
-	public void startDownload() throws IOException{
-		SocketWorker sw = new SocketWorker(this.request.getSocket());
-		this.status = DownloadStatus.DOWNLOADING;
-		try {
-			sw.writeToOs(this.request.getCompiledRequest());
-		} catch (IOException e) {
-			e.printStackTrace();
+	public boolean checkStatusIfTerminated(){
+		synchronized(this.status){
+			return this.status == DownloadStatus.TERMINATED;
 		}
-		collector.sendData(this.request, sw.readMessage());
-		this.status = DownloadStatus.NONE;
-		collector.register(this);
+	}
+	public boolean checkStatusIfInitialized(){
+		synchronized(this.status){
+			return this.status == DownloadStatus.INITIALIZED;
+		}
+	}
+	public void startDownload() throws IOException{
+		while(!checkStatusIfTerminated()){
+			while(!checkStatusIfInitialized()){
+				;
+			}
+			SocketWorker sw = new SocketWorker(this.request.getSocket());
+			synchronized(this.status){
+				this.status = DownloadStatus.DOWNLOADING;
+			}
+			try {
+				sw.writeToOs(this.request.getCompiledRequest());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			collector.sendData(this.request, sw.readMessage());
+			synchronized(this.status){
+				this.status = DownloadStatus.NONE;
+			}
+			collector.register(this);
+		}
 	}
 }

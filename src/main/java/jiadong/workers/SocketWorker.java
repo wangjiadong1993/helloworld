@@ -8,14 +8,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import jiadong.services.downloader.DownloadStatus;
-
 public class SocketWorker {
 	private Socket socket;
 	private InputStream is;
 	private OutputStream os;
-	public SocketWorker(Socket socket){
+	public SocketWorker(Socket socket) throws IOException{
 		this.socket = socket;
+		getIS();
+		getOS();
 	}
 	public InputStream getIS() throws IOException{
 		if(this.is == null){
@@ -148,8 +148,13 @@ public class SocketWorker {
 	}
 	private int getHeaderContentLength(String header){
 		int contentLengthIndex = header.indexOf("Content-Length:");
-		String subString = header.substring(contentLengthIndex);
-		subString = subString.substring(subString.indexOf(' ')+1, subString.indexOf('\r'));
-		return Integer.parseInt(subString);
+		if(contentLengthIndex == -1){
+			return -1;
+		}else{
+			String subString = header.substring(contentLengthIndex);
+			subString = subString.substring(subString.indexOf(' ')+1, subString.indexOf('\r'));
+			return Integer.parseInt(subString);
+		}
+		
 	}
 }

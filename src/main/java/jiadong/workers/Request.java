@@ -3,12 +3,15 @@ package jiadong.workers;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.SSLSocketFactory;
 
 public class Request {
 	/**
@@ -57,7 +60,7 @@ public class Request {
 	/**
 	 * 123
 	 */
-	public final String port;
+	public String port;
 	public final String connection;
 	public final String origin;
 	public final String userAgent;
@@ -92,22 +95,24 @@ public class Request {
 		this.requestMethod = method;
 		if(url.toLowerCase().startsWith("http://")){
 			this.uri = url;
+			this.port = "80";
 			this.protocolType = "HTTP";
 			this.protocolVersion = "1.1";
 		}else if(url.toLowerCase().startsWith("https://")){
-			this.uri = "Http://" + url;
+			this.uri = url;
+			this.port = "443";
 			this.protocolType = "HTTPS";
 			this.protocolVersion = "1.1";
 		}else{
+			this.port = "80";
 			this.uri = "http://" + url;
 			this.protocolType = "HTTP";
 			this.protocolVersion = "1.1";
 		}
 		
 		String tmp = this.uri;
-		tmp = tmp.substring(7);
+		tmp = tmp.substring(tmp.indexOf("://")+3);
 		if(!tmp.contains(":")){
-			this.port = "80";
 			if(!tmp.contains("/")){
 				if(!tmp.contains("?")){
 					if(!tmp.contains("#")){
@@ -125,7 +130,6 @@ public class Request {
 				this.host = tmp.substring(0, tmp.indexOf("/"));
 				this.subUri = tmp.substring(tmp.indexOf("/"));
 			}
-			
 		}else{
 			this.host =tmp.substring(0, tmp.indexOf(":"));
 			Scanner sc = new Scanner(tmp.substring(tmp.indexOf(":")));
@@ -302,6 +306,17 @@ public class Request {
 	 * Integrate the socket inside request
 	 */
 	public Socket getSocket() throws NumberFormatException, UnknownHostException, IOException{
-		return new Socket(this.host, Integer.parseInt(this.port));
+		if(this.protocolType == "HTTP"){
+			return new Socket(this.host, Integer.parseInt(this.port));
+		}else if(this.protocolType == "HTTPS"){
+			System.setProperty("javax.net.ssl.keyStore","/home/jiadong/.ssh/keys/clientkeystore");
+			System.setProperty("javax.net.ssl.keyStorePassword","123!@#qweASD");
+		    SSLSocketFactory ssf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+		    System.out.println(this.getCompiledRequest());
+		    Socket socket = ssf.createSocket(this.host, Integer.parseInt(this.port));
+		    return socket;
+		}else{
+			return null;
+		}
 	}
 }
