@@ -98,7 +98,6 @@ public class HTTPDownloadThread implements Runnable{
 					}
 				}
 			}
-//			System.out.println("=======End==================");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
