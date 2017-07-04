@@ -23,7 +23,7 @@ public class HTTPDownloader implements Service, Collector {
 	/**
 	 * the size of each chunk.
 	 */
-	private static int CHUNK_SIZE = 1024*1024*10;
+	private static int CHUNK_SIZE = 1024*1024;
 	/**
 	 * The output file.
 	 */

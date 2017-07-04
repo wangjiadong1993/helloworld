@@ -17,7 +17,14 @@ public class LoggingManager{
 	public void managerDestructor() {
 		
 	}
-	
+	public void log(String obj, String text){
+		if(obj != null){
+			System.out.println(obj + "	" + text);
+		}else{
+			System.out.println(text);
+		}
+		
+	}
 	public void log(Object obj, String text){
 		if(obj != null){
 			System.out.println(obj.getClass().toString() + "	" + text);
@@ -26,4 +33,5 @@ public class LoggingManager{
 		}
 		
 	}
+
 }

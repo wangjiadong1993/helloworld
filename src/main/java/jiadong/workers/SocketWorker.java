@@ -14,6 +14,7 @@ public class SocketWorker {
 	private Socket socket;
 	private InputStream is;
 	private OutputStream os;
+	private LoggingManager logger = LoggingManager.getInstance();
 
 	public SocketWorker(Socket socket) throws IOException {
 		this.socket = socket;
@@ -85,8 +86,10 @@ public class SocketWorker {
 	public byte[] readMessage() throws IOException {
 		return (byte[]) startDownload(false, false);
 	}
+
 	/**
 	 * A downloading thread
+	 * 
 	 * @param headerOnly
 	 * @param withHeader
 	 * @return
@@ -101,7 +104,7 @@ public class SocketWorker {
 		/**
 		 * The maximum length the buffer can store
 		 */
-		int maxLeng = 1024*1024*10;
+		int maxLeng = 1024 * 1024 * 10;
 		/**
 		 * Buffer
 		 */
@@ -109,7 +112,7 @@ public class SocketWorker {
 		/**
 		 * Counter
 		 */
-		int counter =0;
+		int counter = 0;
 		/**
 		 * Container for received data
 		 */
@@ -128,22 +131,17 @@ public class SocketWorker {
 			 * Otherwise, keep looping.
 			 */
 			while ((tmp_int = is.read(buffer)) > 0) {
-//				/**
-//				 * Stop for a while
-//				 */
-//				Thread.sleep(1);
-//				
 				/**
 				 * Counter Increment
 				 */
-				counter ++;
+				counter++;
 				/**
 				 * Read all bytes from buffer into bufferedLinkedList
 				 */
 				for (int i = 0; i < tmp_int; i++)
 					bufferLinkedList.add(new Byte(buffer[i]));
 				/**
-				 * If the received bytes hasn't reach max. 
+				 * If the received bytes hasn't reach max.
 				 */
 				if (tmp_int != maxLeng) {
 					/**
@@ -155,10 +153,10 @@ public class SocketWorker {
 						 * Try to find the /r/n
 						 */
 						if (tmp == -1) {
-							continue;	
-						/**
-						 * If found
-						 */
+							continue;
+							/**
+							 * If found
+							 */
 						} else {
 							/**
 							 * If header-only
@@ -181,10 +179,18 @@ public class SocketWorker {
 							 */
 							headerContentLength = this
 									.getHeaderContentLength(header);
-							if (headerContentLength == bufferLinkedList.size()) {break;} else {continue;}
+							if (headerContentLength == bufferLinkedList.size()) {
+								break;
+							} else {
+								continue;
+							}
 						}
 					} else {
-						if (headerContentLength == bufferLinkedList.size()) {
+						logger.log("bufferLinkedList Size",
+								String.valueOf(bufferLinkedList.size()));
+						logger.log("headerContentLength Size",
+								String.valueOf(headerContentLength));
+						if (bufferLinkedList.size() == headerContentLength) {
 							break;
 						} else {
 							continue;
@@ -197,7 +203,8 @@ public class SocketWorker {
 		}
 		if (bufferLinkedList.size() == headerContentLength
 				|| headerContentLength == -1) {
-			LoggingManager.getInstance().log(this, "Size is: " + bufferLinkedList.size());
+			LoggingManager.getInstance().log(this,
+					"Size is: " + bufferLinkedList.size());
 			if (withHeader) {
 				return new Response(header, byteListToArray(bufferLinkedList));
 			} else {
@@ -212,6 +219,7 @@ public class SocketWorker {
 			throw (new IOException());
 		}
 	}
+
 	private int getHeaderEnd(List<Byte> byteList) {
 		for (int i = 0; i < byteList.size() - 3; i++) {
 			if (byteList.get(i).intValue() == ('\r' - 0)
