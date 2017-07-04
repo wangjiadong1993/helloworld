@@ -37,6 +37,11 @@ public class Request {
 	 *  
 	 */
 	public final String subUri;
+	
+	/**
+	 * hello.html
+	 */
+	public String fileName;
 	/**
 	 *  #segment1
 	 *  
@@ -195,6 +200,21 @@ public class Request {
 		}else{
 			this.params = null;
 		}
+	}
+	
+	public String getFileName(){
+		String tmp = new String(this.subUri.toCharArray());
+		if(tmp.contains("#"))
+			tmp = tmp.substring(0, tmp.indexOf("#"));
+		if(tmp.contains("?"))
+			tmp = tmp.substring(0, tmp.indexOf("?"));
+		if(tmp.charAt(tmp.length()-1) == '/'){
+			return "index.html";
+		}
+		if(tmp.contains("/")){
+			tmp = tmp.substring(tmp.lastIndexOf("/")+1);
+		}
+		return tmp;
 	}
 	/**
 	 * Constructor

@@ -56,7 +56,7 @@ public class HTTPDownloader implements Service, Collector {
 	/**
 	 * The total count of the working threads.
 	 */
-	private int threadCount = 1;
+	private Integer threadCount = 1;
 	/**
 	 * The generated request for downloading.
 	 */
@@ -76,9 +76,14 @@ public class HTTPDownloader implements Service, Collector {
 	 * @param url
 	 * @throws IOException
 	 */
+	public HTTPDownloader(String url) throws IOException {
+		this(url, -1);
+	}
+	public HTTPDownloader(String url, int threadCount) throws IOException{
+		this(null, threadCount, url);
+	}
 	public HTTPDownloader(String outputFile, int threadCount, String url) throws IOException{
-		this.outputFile = new FileOutputStream(new File(outputFile));
-		this.threadCount = threadCount;
+		
 		Request testForLength = new Request(url, "HEAD");
 		try {
 			this._data_length = HttpUtil.getLengthUsingHeader(testForLength);
@@ -86,8 +91,13 @@ public class HTTPDownloader implements Service, Collector {
 			e.printStackTrace();
 		}
 		this.request = new Request(url, "GET");
-		if(this._data_length == -1){
-			this.threadCount = 1;
+		
+		this.outputFile = new FileOutputStream(new File(outputFile == null ? this.request.getFileName() : outputFile));
+		
+		this.threadCount = threadCount;
+		
+		if(this._data_length == -1 || threadCount == -1){
+			this.threadCount = -1;
 			CHUNK_SIZE = -1;
 		}else{
 			this.threadCount = threadCount <= 1 ? 1 : (threadCount <= THREAD_MAX_COUNT ? threadCount : THREAD_MAX_COUNT);
@@ -103,10 +113,19 @@ public class HTTPDownloader implements Service, Collector {
 			});
 		}
 	}
+	private void downloadSingleThread() {
+		
+		
+	}
 	/**
 	 * Main Downloading coordination code.
 	 */
 	public void startDownloadTask(){
+		if(this.threadCount == -1 ){
+			downloadSingleThread();
+			return;
+		}
+		
 		if(CHUNK_SIZE == -1){
 			try {
 				SocketWorker sw = new SocketWorker(this.request.getSocket());
